@@ -77,20 +77,24 @@ body.arrived .vignette { box-shadow: inset 0 0 30vmax rgba(0,0,0,0.85); }
 /* ============ Topbar ============ */
 .topbar {
   position: fixed; top: 0; left: 0; right: 0; z-index: 70;
-  display: flex; align-items: center; justify-content: space-between;
-  padding: clamp(16px, 3vw, 30px) clamp(18px, 4vw, 46px);
-  mix-blend-mode: difference;   /* stays legible over any scene */
+  display: flex; align-items: flex-start; justify-content: space-between;
+  padding: clamp(18px, 3.5vw, 38px) clamp(20px, 4vw, 48px);
+  color: #fff;
+  text-shadow: 0 2px 14px rgba(0,0,0,0.55);   /* legible on bright wood + dark cellar */
 }
-.brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: #fff; }
-.brand-mark { width: 34px; height: 22px; fill: none; stroke: #fff; stroke-width: 3.5; stroke-linejoin: round; stroke-linecap: round; }
-.brand-word { font-size: 13px; letter-spacing: 0.42em; font-weight: 500; }
-.topbar-right { display: flex; align-items: center; gap: clamp(14px, 3vw, 28px); }
-.brand-est { font-size: 11px; letter-spacing: 0.34em; color: #fff; opacity: 0.75; }
+.brand { display: flex; flex-direction: column; gap: 6px; text-decoration: none; color: #fff; }
+.brand-word { font-family: var(--serif); font-size: clamp(24px, 3.2vw, 34px); font-weight: 500; line-height: 1; letter-spacing: 0.01em; }
+.brand-est { font-size: clamp(12px, 1.4vw, 15px); font-weight: 500; letter-spacing: 0.06em; opacity: 0.92; }
+.topbar-right { display: flex; align-items: flex-start; gap: clamp(16px, 3vw, 30px); }
+.jub-logo { display: flex; align-items: center; }
+.jub-logo .brand-mark { width: 40px; height: 26px; }
+.brand-mark { fill: none; stroke: #fff; stroke-width: 3.5; stroke-linejoin: round; stroke-linecap: round; }
 
 .sound-toggle {
   display: flex; align-items: center; gap: 9px;
   background: none; border: none; cursor: pointer; color: #fff;
-  font-family: var(--sans); font-size: 11px; letter-spacing: 0.28em;
+  font-family: var(--sans); font-size: 12px; font-weight: 500; letter-spacing: 0.2em;
+  text-shadow: inherit;
 }
 .sound-bars { display: flex; align-items: flex-end; gap: 2px; height: 13px; }
 .sound-bars i { width: 2px; height: 4px; background: #fff; opacity: 0.6; }
@@ -121,30 +125,21 @@ body.arrived .depth-label { color: var(--amber); }
 .scene { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; will-change: opacity, transform; }
 
 /* ---- Scene 1: the staircase IS the landing ---- */
-.scene--hero { background: var(--abyss); }
+.scene--hero { background: #201812; }
 .hero-bg {
   position: absolute; inset: 0;
   background-image: url("static/trappa.jpg");
-  background-size: cover; background-position: 50% 42%;
-  filter: brightness(0.5) saturate(0.85) contrast(1.02);
+  background-size: cover; background-position: 50% 40%;
+  filter: brightness(0.9) saturate(1.02) contrast(1.02);
 }
+/* only a soft darkening top & bottom so the corner labels + "Kjelleren" stay legible */
 .hero-scrim {
   position: absolute; inset: 0;
-  background:
-    radial-gradient(120% 95% at 50% 45%, rgba(8,14,26,0.25), rgba(6,11,20,0.86) 100%),
-    linear-gradient(180deg, rgba(6,11,20,0.75) 0%, rgba(6,11,20,0.15) 32%, rgba(6,11,20,0.4) 68%, rgba(6,11,20,0.95) 100%);
+  background: linear-gradient(180deg,
+    rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.08) 20%,
+    rgba(0,0,0,0) 52%, rgba(0,0,0,0.15) 78%, rgba(0,0,0,0.6) 100%);
 }
-.hero-inner { position: relative; z-index: 2; text-align: center; padding: 0 24px; }
 .scroll-hint { z-index: 2; }
-.kicker { font-size: clamp(11px, 1.5vw, 14px); letter-spacing: 0.6em; color: var(--silver-dim); text-indent: 0.6em; margin-bottom: clamp(14px, 3vh, 30px); }
-.numeral {
-  font-family: var(--serif); font-weight: 300; line-height: 0.82;
-  font-size: clamp(120px, 30vw, 340px); color: var(--platinum);
-  letter-spacing: -0.01em;
-  text-shadow: 0 0 60px rgba(120,160,220,0.14);
-}
-.hero-years { font-family: var(--serif); font-size: clamp(20px, 4vw, 40px); letter-spacing: 0.7em; color: var(--silver); text-indent: 0.7em; margin-top: 6px; }
-.hero-sub { margin-top: clamp(20px, 4vh, 40px); font-size: clamp(13px, 1.6vw, 16px); font-weight: 300; letter-spacing: 0.16em; color: var(--silver-dim); }
 
 .countdown { margin-top: clamp(34px, 6vh, 64px); display: inline-flex; align-items: flex-start; gap: clamp(8px, 2vw, 20px); }
 .cd-unit { display: flex; flex-direction: column; align-items: center; min-width: clamp(46px, 8vw, 78px); }
@@ -153,51 +148,27 @@ body.arrived .depth-label { color: var(--amber); }
 .cd-sep { font-family: var(--serif); font-size: clamp(26px, 5vw, 52px); color: var(--blue-muted); line-height: 1.1; }
 
 .scroll-hint {
-  position: absolute; bottom: clamp(26px, 6vh, 54px); left: 50%; transform: translateX(-50%);
-  display: flex; flex-direction: column; align-items: center; gap: 12px;
-  font-size: 10.5px; letter-spacing: 0.42em; color: var(--silver-dim);
+  position: absolute; bottom: clamp(28px, 6vh, 58px); left: 50%; transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  text-decoration: none; color: #fff;
+  font-family: var(--serif); font-weight: 500; font-size: clamp(24px, 3.4vw, 36px); letter-spacing: 0.01em;
+  text-shadow: 0 2px 16px rgba(0,0,0,0.65);
 }
-.scroll-hint svg { width: 20px; height: 20px; fill: none; stroke: var(--silver-dim); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; animation: bob 2.2s var(--ease) infinite; }
-@keyframes bob { 0%,100%{ transform: translateY(0); opacity: 0.5; } 50%{ transform: translateY(6px); opacity: 1; } }
+.scroll-hint svg { width: 30px; height: 30px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; animation: bob 2.2s var(--ease) infinite; }
+@keyframes bob { 0%,100%{ transform: translateY(0); opacity: 0.7; } 50%{ transform: translateY(6px); opacity: 1; } }
 
-/* ---- Scene 2: the floor in between — a cross-section of the building ---- */
-.scene--floor {
-  background: linear-gradient(180deg, var(--navy) 0%, var(--abyss) 46%, #130c06 100%);
+/* ---- Scene 2: the floor in between (mellometasjen) — a dark interstitial ---- */
+.scene--floor { background: radial-gradient(circle at 50% 42%, #100f0e 0%, #030303 78%); }
+.floor-content {
+  position: relative; z-index: 2; text-align: center; padding: 0 26px;
+  display: flex; flex-direction: column; align-items: center;
 }
-.section { position: absolute; inset: 0; }
-/* the level above — faint structural columns, hinting at the room we just left */
-.section-upper {
-  position: absolute; left: 0; right: 0; top: 0; height: 46%;
-  background: repeating-linear-gradient(90deg, rgba(200,210,225,0.045) 0 2px, transparent 2px 74px);
-  -webkit-mask-image: linear-gradient(180deg, transparent, #000 40%, #000 80%, transparent);
-          mask-image: linear-gradient(180deg, transparent, #000 40%, #000 80%, transparent);
-}
-/* underside / ceiling line */
-.section-ceiling {
-  position: absolute; left: 0; right: 0; top: 42%; height: 1px;
-  background: rgba(200,210,225,0.16);
-  box-shadow: 0 10px 40px rgba(0,0,0,0.4);
-}
-/* the concrete floor slab you pass through */
-.section-slab {
-  position: absolute; left: 0; right: 0; top: 50%; height: clamp(90px, 16vh, 150px);
-  background:
-    repeating-linear-gradient(45deg, rgba(0,0,0,0.30) 0 9px, rgba(0,0,0,0) 9px 18px),
-    linear-gradient(180deg, #35302a, #211d18);
-  border-top: 2px solid rgba(225,230,240,0.55);         /* floor surface */
-  box-shadow: 0 -22px 60px rgba(0,0,0,0.55), 0 30px 90px rgba(0,0,0,0.7);
-  display: flex; align-items: center; justify-content: center;
-}
-.slab-tag { font-size: 10px; letter-spacing: 0.5em; text-indent: 0.5em; color: rgba(255,255,255,0.32); }
-/* the warm light of the cellar, rising from beneath the floor */
-.section-lower {
-  position: absolute; left: 0; right: 0; top: calc(50% + clamp(90px, 16vh, 150px)); bottom: 0;
-  background: radial-gradient(130% 130% at 50% 130%, rgba(255,120,30,0.42), rgba(255,90,20,0) 62%);
-}
-.floor-note {
-  position: absolute; bottom: clamp(20px, 6vh, 54px); left: 0; right: 0; text-align: center;
-  font-size: 11px; letter-spacing: 0.34em; text-transform: uppercase; color: rgba(255,210,180,0.62);
-}
+.floor-kicker { font-size: clamp(12px, 1.6vw, 15px); letter-spacing: 0.42em; text-transform: uppercase; color: var(--silver-dim); text-indent: 0.42em; }
+.floor-logo { margin: clamp(22px, 4.5vh, 44px) 0 clamp(18px, 3.5vh, 34px); }
+.floor-logo svg { width: clamp(72px, 11vw, 112px); height: auto; fill: none; stroke: var(--silver); stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }
+.floor-title { font-family: var(--serif); font-weight: 400; font-size: clamp(56px, 12vw, 140px); color: var(--platinum); line-height: 0.9; }
+.floor-date { margin-top: clamp(14px, 2.5vh, 26px); font-size: clamp(14px, 2vw, 20px); font-weight: 300; letter-spacing: 0.12em; color: var(--silver); }
+.floor-content .countdown { margin-top: clamp(28px, 5vh, 52px); }
 
 /* ---- Scene 3: cellar ---- */
 .scene--cellar { background: #000; }
@@ -315,12 +286,12 @@ body.menu-live .cellar-hint { opacity: 1; }
 /* ============ Responsive ============ */
 @media (max-width: 720px) {
   .depth { display: none; }
-  .brand-est { display: none; }
   .countdown { gap: 4px; }
   .cd-sep { display: none; }
   .cd-unit { min-width: 62px; }
   .hot-name { font-size: 10px; letter-spacing: 0.1em; }
-  .topbar { padding: 14px 18px; }
+  .topbar { padding: 16px 18px; }
+  .brand-word { font-size: 22px; }
 }
 
 /* short / laptop / landscape viewports — keep the hint clear of the countdown */

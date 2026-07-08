@@ -9,7 +9,7 @@
   "use strict";
 
   /* --- Configurable jubilee date (local time) --- */
-  const ANNIVERSARY = new Date("2026-10-24T19:00:00");
+  const ANNIVERSARY = new Date("2027-01-29T19:00:00");
 
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -29,6 +29,7 @@
   const scFloor = $("#scFloor");
   const scCellar = $("#scCellar");
   const heroBg = $(".hero-bg");
+  const floorContent = $(".floor-content");
   const climax = $("#climax");
   const flash = $("#flash");
   const depthFill = $("#depthFill");
@@ -71,6 +72,9 @@
 
     // very light parallax on the staircase image = depth without a zoom
     heroBg.style.transform = `translateY(${lerp(0, 8, range(p, 0, 0.4)).toFixed(2)}%)`;
+
+    // mellometasje text fades up as the floor reaches centre, fades as it leaves
+    floorContent.style.opacity = clamp(1 - Math.abs(camera - 100) / 85).toFixed(3);
 
     hero.style.pointerEvents = camera > 90 ? "none" : "auto";
     scFloor.setAttribute("aria-hidden", camera < 40 || camera > 160 ? "true" : "false");

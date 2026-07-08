@@ -1,0 +1,14 @@
+# OS-filer
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor / verktøy
+.vscode/
+.idea/
+.claude/
+
+# Avhengigheter / bygg (om du senere tar i bruk npm e.l.)
+node_modules/
+dist/
+*.log
