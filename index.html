@@ -1,0 +1,142 @@
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Mannhullet · 110 år</title>
+<meta name="description" content="Alle finner veien ned hit. En digital reise ned trappa til Mannhullet — 110 år med marinekultur." />
+<meta name="theme-color" content="#060b14" />
+
+<!-- Elegant display serif + clean grotesk. Falls back to Georgia / system if offline. -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+<link rel="stylesheet" href="styles.css" />
+
+<!-- ============ Global overlays ============ -->
+<div class="grain" aria-hidden="true"></div>
+<div class="vignette" aria-hidden="true"></div>
+<div class="flash" id="flash" aria-hidden="true"></div>
+
+<!-- ============ Chrome ============ -->
+<header class="topbar" id="topbar">
+  <a class="brand" href="#" aria-label="Mannhullet">
+    <svg class="brand-mark" viewBox="0 0 64 40" aria-hidden="true">
+      <path d="M4 38 L20 6 L32 26 L44 6 L60 38" />
+    </svg>
+    <span class="brand-word">MANNHULLET</span>
+  </a>
+  <div class="topbar-right">
+    <span class="brand-est">EST. 1915</span>
+    <button class="sound-toggle" id="soundToggle" aria-pressed="false" aria-label="Skru på lyd">
+      <span class="sound-bars"><i></i><i></i><i></i><i></i></span>
+      <span class="sound-label">Lyd</span>
+    </button>
+  </div>
+</header>
+
+<!-- ============ Depth gauge ============ -->
+<aside class="depth" id="depth" aria-hidden="true">
+  <span class="depth-label" id="depthLabel">1. ETASJE</span>
+  <div class="depth-track"><div class="depth-fill" id="depthFill"></div></div>
+  <span class="depth-meta">MARIN → KJELLER</span>
+</aside>
+
+<!-- ============ The fixed cinematic stage ============ -->
+<div class="stage" id="stage">
+
+  <!-- SCENE 1 — Ground floor / entrance -->
+  <section class="scene scene--hero" id="scHero">
+    <div class="hero-inner">
+      <p class="kicker reveal" data-d="1">MARIN TEKNIKK</p>
+      <h1 class="numeral reveal" data-d="2">110</h1>
+      <p class="hero-years reveal" data-d="3">ÅR</p>
+      <p class="hero-sub reveal" data-d="4">Et jubileum, dypt under bakken.</p>
+
+      <div class="countdown reveal" data-d="5" id="countdown" role="timer" aria-label="Nedtelling til jubileet">
+        <div class="cd-unit"><span class="cd-num" id="cdDays">--</span><span class="cd-lab">Dager</span></div>
+        <span class="cd-sep">:</span>
+        <div class="cd-unit"><span class="cd-num" id="cdHours">--</span><span class="cd-lab">Timer</span></div>
+        <span class="cd-sep">:</span>
+        <div class="cd-unit"><span class="cd-num" id="cdMins">--</span><span class="cd-lab">Min</span></div>
+        <span class="cd-sep">:</span>
+        <div class="cd-unit"><span class="cd-num" id="cdSecs">--</span><span class="cd-lab">Sek</span></div>
+      </div>
+    </div>
+
+    <div class="scroll-hint reveal" data-d="6" id="scrollHint">
+      <span>Rull for å gå ned</span>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" /></svg>
+    </div>
+  </section>
+
+  <!-- SCENE 2 & 3 — The staircase / the descent -->
+  <section class="scene scene--stairs" id="scStairs" aria-hidden="true">
+    <div class="stairs-img" id="stairsImg"></div>
+    <div class="stairs-shade" id="stairsShade"></div>
+    <div class="cellar-glow" id="cellarGlow"></div>
+
+    <!-- historical year markers that surface during the descent -->
+    <div class="years" id="years">
+      <span class="year" data-at="0.14">1915</span>
+      <span class="year" data-at="0.24">1948</span>
+      <span class="year" data-at="0.34">1976</span>
+      <span class="year" data-at="0.44">1999</span>
+      <span class="year" data-at="0.54">2025</span>
+    </div>
+
+    <p class="descent-word" id="descentWord">Ned.</p>
+  </section>
+
+  <!-- SCENE 4 & 5 — Arrival + the cellar as a menu -->
+  <section class="scene scene--cellar" id="scCellar" aria-hidden="true">
+    <div class="cellar-img" id="cellarImg"></div>
+
+    <!-- Scene 4: the emotional climax -->
+    <div class="climax" id="climax">
+      <p class="climax-lead">Alle finner veien ned hit.</p>
+      <p class="climax-body">I 110 år har generasjoner av mariner<br />tatt den samme reisen.</p>
+    </div>
+
+    <!-- Scene 5: interactive hotspots (the cellar IS the menu) -->
+    <div class="hotspots" id="hotspots">
+      <button class="hot" style="--x:41%;--y:37%" data-key="historie">
+        <span class="hot-dot"></span><span class="hot-name">Historien</span>
+      </button>
+      <button class="hot" style="--x:16%;--y:80%" data-key="billetter">
+        <span class="hot-dot"></span><span class="hot-name">Baren · Billetter</span>
+      </button>
+      <button class="hot" style="--x:38%;--y:20%" data-key="spilleliste">
+        <span class="hot-dot"></span><span class="hot-name">Anlegget · Spilleliste</span>
+      </button>
+      <button class="hot" style="--x:63%;--y:29%" data-key="program">
+        <span class="hot-dot"></span><span class="hot-name">Tavla · Program</span>
+      </button>
+      <button class="hot" style="--x:13%;--y:41%" data-key="galleri">
+        <span class="hot-dot"></span><span class="hot-name">Bildene · Galleri</span>
+      </button>
+      <button class="hot" style="--x:82%;--y:72%" data-key="effekter">
+        <span class="hot-dot"></span><span class="hot-name">Jakka · Effekter</span>
+      </button>
+      <button class="hot" style="--x:93%;--y:47%" data-key="kontakt">
+        <span class="hot-dot"></span><span class="hot-name">Døra · Kontakt</span>
+      </button>
+    </div>
+
+    <div class="cellar-hint" id="cellarHint">Alt her nede er en dør. Trykk deg inn.</div>
+  </section>
+</div>
+
+<!-- scroll track that drives the stage -->
+<div class="scroll-track" id="scrollTrack" aria-hidden="true"></div>
+
+<!-- ============ Modal ============ -->
+<div class="modal-root" id="modalRoot" aria-hidden="true">
+  <div class="modal-scrim" id="modalScrim"></div>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <button class="modal-close" id="modalClose" aria-label="Lukk">×</button>
+    <p class="modal-kicker" id="modalKicker"></p>
+    <h2 class="modal-title" id="modalTitle"></h2>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<script src="script.js"></script>
