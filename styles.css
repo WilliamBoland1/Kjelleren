@@ -47,19 +47,15 @@ body.no-scroll { overflow: hidden; }
 
 /* film grain — subtle up top, heavier in the cellar (via body.arrived) */
 .grain {
-  position: fixed; inset: -50%;
+  position: fixed; inset: 0;
   z-index: 90; pointer-events: none;
   opacity: 0.05;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   mix-blend-mode: overlay;
   transition: opacity 1.2s var(--ease);
 }
-body.descending .grain { opacity: 0.08; }
-body.arrived .grain    { opacity: 0.15; animation: grainshift 0.6s steps(3) infinite; }
-@keyframes grainshift {
-  0% { transform: translate(0,0); } 33% { transform: translate(-3%,2%); }
-  66% { transform: translate(2%,-2%); } 100% { transform: translate(0,0); }
-}
+body.descending .grain { opacity: 0.09; }
+body.arrived .grain    { opacity: 0.16; }
 
 .vignette {
   position: fixed; inset: 0; z-index: 80; pointer-events: none;
@@ -124,12 +120,22 @@ body.arrived .depth-label { color: var(--amber); }
 
 .scene { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; will-change: opacity, transform; }
 
-/* ---- Scene 1: hero ---- */
-.scene--hero {
-  background:
-    radial-gradient(120% 90% at 50% 8%, #12233b 0%, var(--navy) 42%, var(--abyss) 100%);
+/* ---- Scene 1: the staircase IS the landing ---- */
+.scene--hero { background: var(--abyss); }
+.hero-bg {
+  position: absolute; inset: 0;
+  background-image: url("static/trappa.jpg");
+  background-size: cover; background-position: 50% 42%;
+  filter: brightness(0.5) saturate(0.85) contrast(1.02);
 }
-.hero-inner { text-align: center; padding: 0 24px; }
+.hero-scrim {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(120% 95% at 50% 45%, rgba(8,14,26,0.25), rgba(6,11,20,0.86) 100%),
+    linear-gradient(180deg, rgba(6,11,20,0.75) 0%, rgba(6,11,20,0.15) 32%, rgba(6,11,20,0.4) 68%, rgba(6,11,20,0.95) 100%);
+}
+.hero-inner { position: relative; z-index: 2; text-align: center; padding: 0 24px; }
+.scroll-hint { z-index: 2; }
 .kicker { font-size: clamp(11px, 1.5vw, 14px); letter-spacing: 0.6em; color: var(--silver-dim); text-indent: 0.6em; margin-bottom: clamp(14px, 3vh, 30px); }
 .numeral {
   font-family: var(--serif); font-weight: 300; line-height: 0.82;
@@ -154,44 +160,52 @@ body.arrived .depth-label { color: var(--amber); }
 .scroll-hint svg { width: 20px; height: 20px; fill: none; stroke: var(--silver-dim); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; animation: bob 2.2s var(--ease) infinite; }
 @keyframes bob { 0%,100%{ transform: translateY(0); opacity: 0.5; } 50%{ transform: translateY(6px); opacity: 1; } }
 
-/* ---- Scene 2/3: staircase descent ---- */
-.scene--stairs { background: var(--abyss); opacity: 0; }
-.stairs-img {
-  position: absolute; inset: -6%;
-  background-image: url("static/trappa.jpg");
-  background-size: cover; background-position: 50% 12%;
-  will-change: transform, filter;
+/* ---- Scene 2: the floor in between — a cross-section of the building ---- */
+.scene--floor {
+  background: linear-gradient(180deg, var(--navy) 0%, var(--abyss) 46%, #130c06 100%);
 }
-.stairs-shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(6,11,20,0.55) 0%, rgba(6,11,20,0) 35%, rgba(6,11,20,0.15) 70%, rgba(6,11,20,0.9) 100%); }
-/* warm light spilling up from the cellar at the foot of the stairs */
-.cellar-glow {
-  position: absolute; left: 50%; bottom: -30%; transform: translateX(-50%);
-  width: 90vw; height: 60vh; border-radius: 50%;
-  background: radial-gradient(closest-side, rgba(255,120,30,0.55), rgba(255,90,20,0) 70%);
-  opacity: 0; mix-blend-mode: screen; filter: blur(20px);
+.section { position: absolute; inset: 0; }
+/* the level above — faint structural columns, hinting at the room we just left */
+.section-upper {
+  position: absolute; left: 0; right: 0; top: 0; height: 46%;
+  background: repeating-linear-gradient(90deg, rgba(200,210,225,0.045) 0 2px, transparent 2px 74px);
+  -webkit-mask-image: linear-gradient(180deg, transparent, #000 40%, #000 80%, transparent);
+          mask-image: linear-gradient(180deg, transparent, #000 40%, #000 80%, transparent);
+}
+/* underside / ceiling line */
+.section-ceiling {
+  position: absolute; left: 0; right: 0; top: 42%; height: 1px;
+  background: rgba(200,210,225,0.16);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+}
+/* the concrete floor slab you pass through */
+.section-slab {
+  position: absolute; left: 0; right: 0; top: 50%; height: clamp(90px, 16vh, 150px);
+  background:
+    repeating-linear-gradient(45deg, rgba(0,0,0,0.30) 0 9px, rgba(0,0,0,0) 9px 18px),
+    linear-gradient(180deg, #35302a, #211d18);
+  border-top: 2px solid rgba(225,230,240,0.55);         /* floor surface */
+  box-shadow: 0 -22px 60px rgba(0,0,0,0.55), 0 30px 90px rgba(0,0,0,0.7);
+  display: flex; align-items: center; justify-content: center;
+}
+.slab-tag { font-size: 10px; letter-spacing: 0.5em; text-indent: 0.5em; color: rgba(255,255,255,0.32); }
+/* the warm light of the cellar, rising from beneath the floor */
+.section-lower {
+  position: absolute; left: 0; right: 0; top: calc(50% + clamp(90px, 16vh, 150px)); bottom: 0;
+  background: radial-gradient(130% 130% at 50% 130%, rgba(255,120,30,0.42), rgba(255,90,20,0) 62%);
+}
+.floor-note {
+  position: absolute; bottom: clamp(20px, 6vh, 54px); left: 0; right: 0; text-align: center;
+  font-size: 11px; letter-spacing: 0.34em; text-transform: uppercase; color: rgba(255,210,180,0.62);
 }
 
-.years { position: absolute; inset: 0; pointer-events: none; }
-.year {
-  position: absolute; left: clamp(20px, 8vw, 120px); top: 50%;
-  font-family: var(--serif); font-size: clamp(40px, 9vw, 120px); font-weight: 300;
-  color: rgba(238,242,248,0.9); letter-spacing: 0.04em;
-  opacity: 0; transform: translateY(20px); transition: none;
-  text-shadow: 0 4px 40px rgba(0,0,0,0.6);
-}
-.descent-word {
-  position: absolute; bottom: 12vh; left: 50%; transform: translateX(-50%);
-  font-family: var(--serif); font-style: italic; font-size: clamp(26px, 5vw, 54px);
-  color: var(--silver); opacity: 0; letter-spacing: 0.05em;
-}
-
-/* ---- Scene 4/5: cellar ---- */
-.scene--cellar { background: #000; opacity: 0; }
+/* ---- Scene 3: cellar ---- */
+.scene--cellar { background: #000; }
 .cellar-img {
   position: absolute; inset: 0;
   background-image: url("static/kjelleren.jpg");
   background-size: cover; background-position: 50% 42%;
-  transform: scale(1.12); will-change: transform;
+  transform: scale(1.06);
   filter: saturate(1.05) contrast(1.05);
 }
 

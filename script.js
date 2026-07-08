@@ -26,21 +26,16 @@
   const track = $("#scrollTrack");
   const stage = $("#stage");
   const hero = $("#scHero");
-  const stairs = $("#scStairs");
-  const stairsImg = $("#stairsImg");
-  const stairsShade = $("#stairsShade");
-  const cellarGlow = $("#cellarGlow");
+  const scFloor = $("#scFloor");
   const scCellar = $("#scCellar");
-  const cellarImg = $("#cellarImg");
+  const heroBg = $(".hero-bg");
   const climax = $("#climax");
-  const descentWord = $("#descentWord");
   const flash = $("#flash");
   const depthFill = $("#depthFill");
   const depthLabel = $("#depthLabel");
-  const yearEls = [...document.querySelectorAll(".year")];
 
   /* Total scroll length of the journey. Longer = slower, more cinematic. */
-  const TRACK_VH = reduce ? 300 : 620;
+  const TRACK_VH = reduce ? 260 : 480;
   track.style.height = TRACK_VH + "vh";
 
   /* ---------- reveal the hero on load ---------- */
@@ -51,14 +46,13 @@
   });
 
   /* ============================================================
-     SCROLL → SCENE MAPPING
-     progress windows (0..1 of the whole track):
-       0.00–0.10  hero holds
-       0.08–0.40  descend the staircase (hero fades, stairs zoom)
-       0.34–0.52  approach the foot — glow grows, dollhouse pull
-       0.50–0.62  the flash → arrival in the cellar
-       0.60–0.80  climax text
-       0.78–1.00  cellar becomes the interactive menu
+     SCROLL → CAMERA (a continuous vertical pan through a
+     cross-section of the building — no zoom, no year markers)
+
+     The three scenes are stacked like a filmstrip, each 100vh:
+       0 = staircase landing   1 = floor between   2 = cellar
+     A single "camera" (0 → 200%) slides the strip upward, so we
+     descend past the floor slab and arrive in the cellar.
      ============================================================ */
 
   let flashed = false;
@@ -69,89 +63,41 @@
     const max = document.documentElement.scrollHeight - window.innerHeight;
     const p = max > 0 ? clamp(window.scrollY / max) : 0;
 
-    /* ---- Scene 1: hero ---- */
-    const heroOut = range(p, 0.05, 0.24);
-    hero.style.opacity = 1 - heroOut;
-    hero.style.transform = `scale(${lerp(1, 1.12, smooth(heroOut))})`;
-    hero.style.filter = `blur(${lerp(0, 6, heroOut)}px)`;
-    hero.style.pointerEvents = heroOut > 0.9 ? "none" : "auto";
+    // camera travels 0 → 200% across the descent, then holds on the cellar
+    const camera = 200 * smooth(range(p, 0.05, 0.82));
+    hero.style.transform    = `translateY(${(0   - camera).toFixed(2)}%)`;
+    scFloor.style.transform = `translateY(${(100 - camera).toFixed(2)}%)`;
+    scCellar.style.transform = `translateY(${(200 - camera).toFixed(2)}%)`;
 
-    /* ---- Scene 2/3: the staircase ---- */
-    const stairsIn = range(p, 0.08, 0.20);
-    const descend = range(p, 0.08, 0.52);          // travel down the flight
-    const stairsOut = range(p, 0.50, 0.60);
-    stairs.style.opacity = stairsIn * (1 - stairsOut);
-    stairs.setAttribute("aria-hidden", stairsIn <= 0 ? "true" : "false");
+    // very light parallax on the staircase image = depth without a zoom
+    heroBg.style.transform = `translateY(${lerp(0, 8, range(p, 0, 0.4)).toFixed(2)}%)`;
 
-    // move the camera down the image + push in
-    const dz = smooth(descend);
-    stairsImg.style.transform =
-      `scale(${lerp(1.05, 1.9, dz)}) translateY(${lerp(-2, 10, dz)}%)`;
-    stairsImg.style.backgroundPosition = `50% ${lerp(6, 88, dz)}%`;
-    // light warms and dims as we sink
-    stairsImg.style.filter =
-      `brightness(${lerp(1, 0.62, dz)}) sepia(${lerp(0, 0.4, dz)}) saturate(${lerp(1, 1.5, dz)}) hue-rotate(${lerp(0, -12, dz)}deg)`;
+    hero.style.pointerEvents = camera > 90 ? "none" : "auto";
+    scFloor.setAttribute("aria-hidden", camera < 40 || camera > 160 ? "true" : "false");
+    scCellar.setAttribute("aria-hidden", camera < 150 ? "true" : "false");
 
-    // warm glow from the cellar swelling at the foot of the stairs
-    cellarGlow.style.opacity = range(p, 0.32, 0.54);
-    cellarGlow.style.transform =
-      `translateX(-50%) scale(${lerp(0.5, 1.35, range(p, 0.32, 0.56))})`;
+    // camera-flash the moment we drop through the floor into the cellar
+    if (!flashed && camera >= 150) triggerFlash();
+    if (flashed && camera < 130) flashed = false;
 
-    // "Ned." surfaces mid-descent then leaves
-    const wordIn = range(p, 0.16, 0.24);
-    const wordOut = range(p, 0.30, 0.40);
-    descentWord.style.opacity = wordIn * (1 - wordOut);
-    descentWord.style.transform =
-      `translateX(-50%) translateY(${lerp(20, -20, range(p, 0.16, 0.40))}px)`;
+    /* ---- climax text (once the cellar is settled) ---- */
+    const climaxIn = range(p, 0.80, 0.87);
+    const climaxOut = range(p, 0.92, 0.97);
+    climax.style.opacity = climaxIn * (1 - climaxOut);
+    climax.style.transform = `translateY(${lerp(24, -8, climaxIn)}px)`;
 
-    // historical year markers surface one by one along the descent
-    yearEls.forEach((el) => {
-      const at = parseFloat(el.dataset.at);
-      const local = range(p, at - 0.05, at + 0.05);      // in
-      const gone = range(p, at + 0.05, at + 0.12);        // out
-      const vis = local * (1 - gone);
-      el.style.opacity = vis * 0.9;
-      el.style.transform = `translateY(${lerp(40, -40, range(p, at - 0.06, at + 0.12))}px)`;
-    });
+    /* ---- the cellar becomes the menu ---- */
+    document.body.classList.toggle("menu-live", p >= 0.94);
 
-    /* ---- the flash + Scene 4: arrival ---- */
-    const cellarIn = range(p, 0.52, 0.60);
-    scCellar.style.opacity = cellarIn;
-    scCellar.setAttribute("aria-hidden", cellarIn <= 0 ? "true" : "false");
-    // slow drift on the cellar photo = handheld feel
-    cellarImg.style.transform =
-      `scale(${lerp(1.18, 1.05, range(p, 0.52, 1))})`;
-
-    if (!flashed && p >= 0.53) triggerFlash();
-    if (flashed && p < 0.48) flashed = false; // allow re-trigger if scrolling back up
-
-    /* ---- climax text ---- */
-    const climaxIn = range(p, 0.60, 0.68);
-    const climaxOut = range(p, 0.80, 0.90);
-    const cv = climaxIn * (1 - climaxOut);
-    climax.style.opacity = cv;
-    climax.style.transform = `translateY(${lerp(24, -10, climaxIn)}px)`;
-
-    /* ---- Scene 5: the menu goes live ---- */
-    const live = p >= 0.86;
-    document.body.classList.toggle("menu-live", live);
-
-    /* ---- body theme states ---- */
-    document.body.classList.toggle("descending", p > 0.08 && p < 0.55);
-    document.body.classList.toggle("arrived", p >= 0.55);
-
-    /* ---- stage backdrop navy → black ---- */
-    const bk = smooth(range(p, 0.1, 0.55));
-    stage.style.background =
-      `rgb(${lerp(6, 0, bk)}, ${lerp(11, 0, bk)}, ${lerp(20, 0, bk)})`;
+    /* ---- theme states + grain ---- */
+    document.body.classList.toggle("descending", camera > 20 && camera < 150);
+    document.body.classList.toggle("arrived", camera >= 150);
 
     /* ---- depth gauge ---- */
     depthFill.style.height = (p * 100).toFixed(1) + "%";
     depthLabel.textContent =
-      p < 0.08 ? "1. ETASJE" :
-      p < 0.30 ? "TRAPPA" :
-      p < 0.52 ? "PÅ VEI NED" :
-      p < 0.62 ? "FOTEN AV TRAPPA" : "KJELLEREN";
+      camera < 40  ? "1. ETASJE" :
+      camera < 150 ? "MELLOM ETASJENE" : "KJELLEREN";
   }
 
   function triggerFlash() {

@@ -43,8 +43,10 @@
 <!-- ============ The fixed cinematic stage ============ -->
 <div class="stage" id="stage">
 
-  <!-- SCENE 1 — Ground floor / entrance -->
+  <!-- SCENE 1 — The staircase IS the landing -->
   <section class="scene scene--hero" id="scHero">
+    <div class="hero-bg"></div>
+    <div class="hero-scrim"></div>
     <div class="hero-inner">
       <p class="kicker reveal" data-d="1">MARIN TEKNIKK</p>
       <h1 class="numeral reveal" data-d="2">110</h1>
@@ -68,22 +70,15 @@
     </div>
   </section>
 
-  <!-- SCENE 2 & 3 — The staircase / the descent -->
-  <section class="scene scene--stairs" id="scStairs" aria-hidden="true">
-    <div class="stairs-img" id="stairsImg"></div>
-    <div class="stairs-shade" id="stairsShade"></div>
-    <div class="cellar-glow" id="cellarGlow"></div>
-
-    <!-- historical year markers that surface during the descent -->
-    <div class="years" id="years">
-      <span class="year" data-at="0.14">1915</span>
-      <span class="year" data-at="0.24">1948</span>
-      <span class="year" data-at="0.34">1976</span>
-      <span class="year" data-at="0.44">1999</span>
-      <span class="year" data-at="0.54">2025</span>
+  <!-- SCENE 2 — The floor in between (a cross-section of the building) -->
+  <section class="scene scene--floor" id="scFloor" aria-hidden="true">
+    <div class="section">
+      <div class="section-upper"></div>
+      <div class="section-ceiling"></div>
+      <div class="section-slab"><span class="slab-tag">MELLOMETASJE</span></div>
+      <div class="section-lower"></div>
     </div>
-
-    <p class="descent-word" id="descentWord">Ned.</p>
+    <p class="floor-note">Kjelleren ligger rett under.</p>
   </section>
 
   <!-- SCENE 4 & 5 — Arrival + the cellar as a menu -->
