@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
 
-<link rel="stylesheet" href="styles.css?v=6" />
+<link rel="stylesheet" href="styles.css?v=7" />
 </head>
 <body>
 
@@ -27,11 +27,9 @@
     <span class="brand-est">Est 1915</span>
   </div>
   <div class="topbar-right">
-    <!-- Jubileumslogo — bytt ut M-merket med den ekte jubileumslogoen her -->
+    <!-- Jubileumslogo -->
     <span class="jub-logo" aria-label="Jubileumslogo">
-      <svg class="brand-mark" viewBox="0 0 64 40" aria-hidden="true">
-        <path d="M4 38 L20 6 L32 26 L44 6 L60 38" />
-      </svg>
+      <img class="brand-mark" src="static/logo.png" alt="NTH 110 jubileumslogo" />
     </span>
     <button class="sound-toggle" id="soundToggle" aria-pressed="false" aria-label="Skru på lyd">
       <span class="sound-bars"><i></i><i></i><i></i><i></i></span>
@@ -62,23 +60,9 @@
     </a>
   </section>
 
-  <!-- SCENE 2 — The floor in between (mellometasjen): plain text, fades in & out -->
-  <section class="scene scene--floor" id="scFloor" aria-hidden="true">
-    <div class="floor-content">
-      <p class="floor-title">Mannhullet 2027</p>
-      <p class="floor-date">29. januar&nbsp;→&nbsp;6. februar 2027</p>
-    </div>
-  </section>
-
-  <!-- SCENE 4 & 5 — Arrival + the cellar as a menu -->
+  <!-- SCENE 4 & 5 — Clean arrival, then the cellar becomes a menu -->
   <section class="scene scene--cellar" id="scCellar" aria-hidden="true">
     <div class="cellar-img" id="cellarImg"></div>
-
-    <!-- Scene 4: the emotional climax -->
-    <div class="climax" id="climax">
-      <p class="climax-lead">Alle finner veien ned hit.</p>
-      <p class="climax-body">I 115 år har generasjoner av mariner<br />tatt den samme reisen.</p>
-    </div>
 
     <!-- Scene 5: interactive hotspots (the cellar IS the menu) -->
     <div class="hotspots" id="hotspots">
@@ -107,6 +91,17 @@
 
     <div class="cellar-hint" id="cellarHint">Alt her nede er en dør. Trykk deg her inn.</div>
   </section>
+
+  <!-- The descent — a gradient bridging the two photographs, carrying the line that introduces the cellar -->
+  <div class="descend-veil" id="descendVeil">
+    <div class="descend-text" id="descendText">
+      <p class="descend-lead">Alle finner veien ned hit.</p>
+      <p class="descend-body">I 115 år har generasjoner av mariner<br />tatt den samme reisen.</p>
+      <svg class="descend-arrow" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 4 L12 18" /><path d="M6 13 l6 6 6-6" />
+      </svg>
+    </div>
+  </div>
 </div>
 
 <!-- scroll track that drives the stage -->
@@ -123,6 +118,6 @@
   </div>
 </div>
 
-<script src="script.js?v=6"></script>
+<script src="script.js?v=7"></script>
 </body>
 </html>

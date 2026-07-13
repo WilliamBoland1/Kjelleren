@@ -26,15 +26,14 @@
   const track = $("#scrollTrack");
   const stage = $("#stage");
   const hero = $("#scHero");
-  const scFloor = $("#scFloor");
   const scCellar = $("#scCellar");
-  const floorContent = $(".floor-content");
-  const climax = $("#climax");
+  const descendVeil = $("#descendVeil");
+  const descendText = $("#descendText");
   const depthFill = $("#depthFill");
   const depthLabel = $("#depthLabel");
 
   /* Total scroll length of the journey. Longer = slower, more cinematic. */
-  const TRACK_VH = reduce ? 320 : 800;
+  const TRACK_VH = reduce ? 240 : 550;
   track.style.height = TRACK_VH + "vh";
 
   /* ---------- reveal the hero on load ---------- */
@@ -48,10 +47,10 @@
      SCROLL → CAMERA (a continuous vertical pan through a
      cross-section of the building — no zoom, no year markers)
 
-     The three scenes are stacked like a filmstrip, each 100vh:
-       0 = staircase landing   1 = floor between   2 = cellar
-     A single "camera" (0 → 200%) slides the strip upward, so we
-     descend past the floor slab and arrive in the cellar.
+     The two scenes are stacked like a filmstrip, each 100vh:
+       0 = staircase landing   1 = cellar
+     A single "camera" (0 → 100%) slides the strip upward, so we
+     descend straight into the cellar.
      ============================================================ */
 
   let ticking = false;
@@ -61,40 +60,34 @@
     const max = document.documentElement.scrollHeight - window.innerHeight;
     const p = max > 0 ? clamp(window.scrollY / max) : 0;
 
-    // camera travels 0 → 200% across the descent, then holds on the cellar
-    const camera = 200 * smooth(range(p, 0.05, 0.82));
-    hero.style.transform    = `translateY(${(0   - camera).toFixed(2)}%)`;
-    scFloor.style.transform = `translateY(${(100 - camera).toFixed(2)}%)`;
-    scCellar.style.transform = `translateY(${(200 - camera).toFixed(2)}%)`;
+    // camera travels 0 → 100% across the descent, then holds on the cellar
+    const camera = 100 * smooth(range(p, 0.05, 0.82));
+    hero.style.transform     = `translateY(${(0   - camera).toFixed(2)}%)`;
+    scCellar.style.transform = `translateY(${(100 - camera).toFixed(2)}%)`;
 
-    // mellometasje text fades in and out as the floor passes through the centre
-    // (wide plateau so it stays readable through a long stretch of scrolling)
-    const dist = Math.abs(camera - 100);
-    floorContent.style.opacity = clamp((72 - dist) / 45).toFixed(3);
+    hero.style.pointerEvents = camera > 45 ? "none" : "auto";
+    scCellar.setAttribute("aria-hidden", camera < 75 ? "true" : "false");
 
-    hero.style.pointerEvents = camera > 90 ? "none" : "auto";
-    scFloor.setAttribute("aria-hidden", camera < 30 || camera > 170 ? "true" : "false");
-    scCellar.setAttribute("aria-hidden", camera < 150 ? "true" : "false");
-
-    /* ---- climax text (once the cellar is settled) ---- */
-    const climaxIn = range(p, 0.80, 0.87);
-    const climaxOut = range(p, 0.92, 0.97);
-    climax.style.opacity = climaxIn * (1 - climaxOut);
-    climax.style.transform = `translateY(${lerp(24, -8, climaxIn)}px)`;
+    // gradual white→cellar-color fade through the transition; the intro
+    // line rides on this gradient, then the cellar arrives clean beneath it
+    const veilIn = range(camera, 10, 42);
+    const veilOut = range(camera, 68, 96);
+    const veilOpacity = veilIn * (1 - veilOut);
+    descendVeil.style.opacity = veilOpacity.toFixed(3);
+    descendText.style.opacity = veilOpacity.toFixed(3);
+    descendText.style.transform = `translateY(${lerp(16, -10, veilIn)}px)`;
 
     /* ---- the cellar becomes the menu ---- */
     document.body.classList.toggle("menu-live", p >= 0.94);
 
     /* ---- theme states + grain ---- */
-    document.body.classList.toggle("light-scene", camera < 95);   // white landing → dark topbar ink
-    document.body.classList.toggle("descending", camera > 20 && camera < 150);
-    document.body.classList.toggle("arrived", camera >= 150);
+    document.body.classList.toggle("light-scene", camera < 48);   // white landing → dark topbar ink
+    document.body.classList.toggle("descending", camera > 10 && camera < 75);
+    document.body.classList.toggle("arrived", camera >= 75);
 
     /* ---- depth gauge ---- */
     depthFill.style.height = (p * 100).toFixed(1) + "%";
-    depthLabel.textContent =
-      camera < 40  ? "1. ETASJE" :
-      camera < 150 ? "MELLOM ETASJENE" : "KJELLEREN";
+    depthLabel.textContent = camera < 20 ? "1. ETASJE" : "KJELLEREN";
   }
 
   function onScroll() {
@@ -160,7 +153,7 @@
         <p>Ekte bilder fra kjelleren. Blitz, korn, mørke kroker — akkurat sånn det ser ut.</p>
         <div class="gal">
           <div class="cell" style="background-image:url('static/kjelleren.jpg')"></div>
-          <div class="cell" style="background-image:url('static/trappa.jpg')"></div>
+          <div class="cell" style="background-image:url('static/Trapp2.jpg')"></div>
           <div class="cell ph">1948</div>
           <div class="cell ph">1976</div>
           <div class="cell ph">1999</div>
@@ -227,57 +220,146 @@
   });
 
   /* ============================================================
-     OPTIONAL AMBIENCE (WebAudio) — off by default.
-     A low room tone that warms and swells as you descend.
-     No external files; generated live.
+     HOUSE BEAT (WebAudio) — off by default.
+     A steady four-on-the-floor beat that never changes tempo;
+     only its volume and tonal "openness" respond to how far
+     you've descended, like hearing the party get closer.
+     No external audio files — kick, hat, clap and bass are all
+     synthesized live.
      ============================================================ */
   const soundBtn = $("#soundToggle");
+  const BPM = 124;
+  const LOOKAHEAD_MS = 25;
+  const SCHEDULE_AHEAD = 0.12;
+  const BASS_ROOT = 55; // A1
+  const BASS_PATTERN = [
+    BASS_ROOT, 0, 0, BASS_ROOT,
+    0, 0, BASS_ROOT * 1.5, 0,
+    BASS_ROOT, 0, 0, BASS_ROOT,
+    0, BASS_ROOT * 1.19, 0, 0,
+  ];
+
   let audio = null;
+  let playing = false;
+  let step = 0;
+  let nextNoteTime = 0;
+  let schedulerId = null;
 
   function buildAudio() {
     const AC = window.AudioContext || window.webkitAudioContext;
     if (!AC) return null;
     const ctx = new AC();
 
-    // two detuned oscillators = a soft pad
+    // master bus: everything passes through a filter that "opens up" with depth
+    const filter = ctx.createBiquadFilter();
+    filter.type = "lowpass";
+    filter.frequency.value = 500;
+    filter.Q.value = 0.7;
+
     const master = ctx.createGain();
-    master.gain.value = 0.0;
+    master.gain.value = 0;
+    filter.connect(master);
     master.connect(ctx.destination);
 
-    const mk = (freq, type) => {
+    // shared noise buffer for hats/claps
+    const noiseBuf = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate);
+    const nd = noiseBuf.getChannelData(0);
+    for (let i = 0; i < nd.length; i++) nd[i] = Math.random() * 2 - 1;
+
+    // a soft sustained pad underneath the beat
+    const padGain = ctx.createGain();
+    padGain.gain.value = 0.05;
+    padGain.connect(filter);
+    const mkPad = (freq) => {
       const o = ctx.createOscillator();
-      o.type = type; o.frequency.value = freq;
-      const g = ctx.createGain(); g.gain.value = 0.5;
-      o.connect(g); g.connect(master); o.start();
-      return o;
+      o.type = "sine"; o.frequency.value = freq;
+      o.connect(padGain); o.start();
     };
-    const oscA = mk(55, "sine");
-    const oscB = mk(55.6, "sine");
-    const oscC = mk(110, "triangle");
+    mkPad(110); mkPad(110.6); mkPad(164.8);
 
-    // gentle filtered noise = crowd/room air
-    const bufSize = 2 * ctx.sampleRate;
-    const noiseBuf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
-    const data = noiseBuf.getChannelData(0);
-    for (let i = 0; i < bufSize; i++) data[i] = (Math.random() * 2 - 1) * 0.4;
-    const noise = ctx.createBufferSource();
-    noise.buffer = noiseBuf; noise.loop = true;
-    const nf = ctx.createBiquadFilter();
-    nf.type = "lowpass"; nf.frequency.value = 340;
-    const ng = ctx.createGain(); ng.gain.value = 0.25;
-    noise.connect(nf); nf.connect(ng); ng.connect(master); noise.start();
+    return { ctx, master, filter, noiseBuf };
+  }
 
-    return { ctx, master, oscC, nf };
+  function kick(time) {
+    const { ctx, filter } = audio;
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = "sine";
+    o.frequency.setValueAtTime(150, time);
+    o.frequency.exponentialRampToValueAtTime(42, time + 0.09);
+    g.gain.setValueAtTime(1, time);
+    g.gain.exponentialRampToValueAtTime(0.001, time + 0.32);
+    o.connect(g); g.connect(filter);
+    o.start(time); o.stop(time + 0.34);
+  }
+
+  function hat(time, vel) {
+    const { ctx, filter, noiseBuf } = audio;
+    const src = ctx.createBufferSource();
+    src.buffer = noiseBuf;
+    const hp = ctx.createBiquadFilter();
+    hp.type = "highpass"; hp.frequency.value = 7500;
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(vel, time);
+    g.gain.exponentialRampToValueAtTime(0.001, time + 0.045);
+    src.connect(hp); hp.connect(g); g.connect(filter);
+    src.start(time); src.stop(time + 0.05);
+  }
+
+  function clap(time) {
+    const { ctx, filter, noiseBuf } = audio;
+    [0, 0.012, 0.024].forEach((d) => {
+      const src = ctx.createBufferSource();
+      src.buffer = noiseBuf;
+      const bp = ctx.createBiquadFilter();
+      bp.type = "bandpass"; bp.frequency.value = 1300; bp.Q.value = 1.2;
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0.5, time + d);
+      g.gain.exponentialRampToValueAtTime(0.001, time + d + 0.13);
+      src.connect(bp); bp.connect(g); g.connect(filter);
+      src.start(time + d); src.stop(time + d + 0.14);
+    });
+  }
+
+  function bass(time, freq) {
+    const { ctx, filter } = audio;
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    const f = ctx.createBiquadFilter();
+    o.type = "sawtooth"; o.frequency.value = freq;
+    f.type = "lowpass";
+    f.frequency.setValueAtTime(1200, time);
+    f.frequency.exponentialRampToValueAtTime(120, time + 0.18);
+    g.gain.setValueAtTime(0.42, time);
+    g.gain.exponentialRampToValueAtTime(0.001, time + 0.2);
+    o.connect(f); f.connect(g); g.connect(filter);
+    o.start(time); o.stop(time + 0.22);
+  }
+
+  function scheduleStep(n, time) {
+    if (n % 4 === 0) kick(time);                              // four-on-the-floor
+    if (n % 2 === 1) hat(time, n % 4 === 3 ? 0.22 : 0.14);     // off-beat 8th hats
+    if (n === 4 || n === 12) clap(time);                       // backbeat
+    if (BASS_PATTERN[n]) bass(time, BASS_PATTERN[n]);
+  }
+
+  function scheduler() {
+    const secondsPer16th = (60.0 / BPM) / 4;
+    while (nextNoteTime < audio.ctx.currentTime + SCHEDULE_AHEAD) {
+      scheduleStep(step, nextNoteTime);
+      nextNoteTime += secondsPer16th;
+      step = (step + 1) % 16;
+    }
+    schedulerId = setTimeout(scheduler, LOOKAHEAD_MS);
   }
 
   function updateAudioDepth() {
-    if (!audio) return;
+    if (!audio || !playing) return;
     const max = document.documentElement.scrollHeight - window.innerHeight;
     const p = max > 0 ? clamp(window.scrollY / max) : 0;
-    // deeper = louder + warmer + more room air
-    audio.master.gain.setTargetAtTime(lerp(0.05, 0.16, p), audio.ctx.currentTime, 0.4);
-    audio.nf.frequency.setTargetAtTime(lerp(220, 900, p), audio.ctx.currentTime, 0.4);
-    audio.oscC.frequency.setTargetAtTime(lerp(110, 146.8, p), audio.ctx.currentTime, 0.6);
+    // deeper = louder + brighter — tempo stays constant, only the "openness" shifts
+    audio.master.gain.setTargetAtTime(lerp(0.16, 0.34, p), audio.ctx.currentTime, 0.4);
+    audio.filter.frequency.setTargetAtTime(lerp(450, 9000, p), audio.ctx.currentTime, 0.5);
   }
   window.addEventListener("scroll", updateAudioDepth, { passive: true });
 
@@ -287,14 +369,19 @@
       if (!audio) audio = buildAudio();
       if (!audio) return;
       audio.ctx.resume();
+      playing = true;
+      step = 0;
+      nextNoteTime = audio.ctx.currentTime + 0.05;
+      scheduler();
       soundBtn.setAttribute("aria-pressed", "true");
       soundBtn.setAttribute("aria-label", "Skru av lyd");
-      audio.master.gain.setTargetAtTime(0.08, audio.ctx.currentTime, 0.6);
       updateAudioDepth();
     } else {
+      playing = false;
+      clearTimeout(schedulerId);
       soundBtn.setAttribute("aria-pressed", "false");
       soundBtn.setAttribute("aria-label", "Skru på lyd");
-      if (audio) audio.master.gain.setTargetAtTime(0.0, audio.ctx.currentTime, 0.4);
+      if (audio) audio.master.gain.setTargetAtTime(0.0, audio.ctx.currentTime, 0.25);
     }
   });
 })();

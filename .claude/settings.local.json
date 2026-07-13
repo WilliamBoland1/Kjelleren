@@ -2,7 +2,14 @@
   "permissions": {
     "allow": [
       "WebFetch(domain:williamboland1.github.io)",
-      "WebFetch(domain:raw.githubusercontent.com)"
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Skill(run)",
+      "Skill(run:*)",
+      "Bash(mkdir -p \"C:\\\\Users\\\\willi\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-willi-Desktop-jassing-Kjeller\\\\8e200139-345d-46cb-ac0a-5705ce683066\\\\scratchpad\\\\pw\")",
+      "Bash(npm init *)",
+      "Bash(npm install *)",
+      "Bash(npx playwright *)",
+      "Bash(node capture.cjs)"
     ]
   }
 }

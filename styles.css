@@ -79,15 +79,13 @@ body.light-scene .brand,
 body.light-scene .brand-word,
 body.light-scene .brand-est,
 body.light-scene .sound-toggle { color: #14100c; text-shadow: none; }
-body.light-scene .brand-mark { stroke: #14100c; }
 body.light-scene .sound-bars i { background: #14100c; }
 .brand { display: flex; flex-direction: column; gap: 6px; text-decoration: none; color: #fff; }
 .brand-word { font-family: var(--serif); font-size: clamp(24px, 3.2vw, 34px); font-weight: 500; line-height: 1; letter-spacing: 0.01em; }
 .brand-est { font-size: clamp(12px, 1.4vw, 15px); font-weight: 500; letter-spacing: 0.06em; opacity: 0.92; }
 .topbar-right { display: flex; align-items: flex-start; gap: clamp(16px, 3vw, 30px); }
 .jub-logo { display: flex; align-items: center; }
-.jub-logo .brand-mark { width: 40px; height: 26px; }
-.brand-mark { fill: none; stroke: #fff; stroke-width: 3.5; stroke-linejoin: round; stroke-linecap: round; }
+.jub-logo .brand-mark { height: clamp(38px, 5vw, 52px); width: auto; display: block; }
 
 .sound-toggle {
   display: flex; align-items: center; gap: 9px;
@@ -127,8 +125,10 @@ body.arrived .depth-label { color: var(--amber); }
 /* white borders; image shown whole (contain) so it keeps its real proportions — no zoom/pixelation */
 .scene--hero { background: #ffffff; }
 .hero-bg {
-  position: absolute; inset: 0;
-  background-image: url("static/trappa.jpg");
+  position: absolute;
+  top: clamp(90px, 13vh, 130px); left: clamp(16px, 3vw, 40px);
+  right: clamp(16px, 3vw, 40px); bottom: clamp(16px, 3vw, 40px);
+  background-image: url("static/Trapp2.jpg");
   background-size: contain; background-repeat: no-repeat; background-position: center;
 }
 .scroll-hint { z-index: 2; }
@@ -143,20 +143,13 @@ body.arrived .depth-label { color: var(--amber); }
   position: absolute; bottom: clamp(28px, 6vh, 58px); left: 50%; transform: translateX(-50%);
   display: flex; flex-direction: column; align-items: center; gap: 10px;
   text-decoration: none; color: #fff;
-  mix-blend-mode: difference;   /* legible on wood, dark, and the white borders alike */
-  font-family: var(--serif); font-weight: 500; font-size: clamp(24px, 3.4vw, 36px); letter-spacing: 0.01em;
+  background: rgba(10,8,6,0.55); backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,255,255,0.14);
+  padding: 10px 22px; border-radius: 100px;
+  font-family: var(--serif); font-weight: 500; font-size: clamp(20px, 2.6vw, 28px); letter-spacing: 0.01em;
 }
 .scroll-hint svg { width: 30px; height: 30px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; animation: bob 2.2s var(--ease) infinite; }
 @keyframes bob { 0%,100%{ transform: translateY(0); opacity: 0.7; } 50%{ transform: translateY(6px); opacity: 1; } }
-
-/* ---- Scene 2: the floor in between (mellometasjen) — plain text on black ---- */
-.scene--floor { background: #050505; }
-.floor-content {
-  position: relative; z-index: 2; text-align: center; padding: 0 26px;
-  display: flex; flex-direction: column; align-items: center; gap: clamp(16px, 3vh, 30px);
-}
-.floor-title { font-family: var(--serif); font-weight: 400; font-size: clamp(38px, 7vw, 88px); color: var(--platinum); line-height: 1; }
-.floor-date { font-size: clamp(15px, 2vw, 22px); font-weight: 300; letter-spacing: 0.14em; color: var(--silver); }
 
 /* ---- Scene 3: cellar ---- */
 .scene--cellar { background: #000; }
@@ -168,13 +161,32 @@ body.arrived .depth-label { color: var(--amber); }
   filter: saturate(1.05) contrast(1.05);
 }
 
-.climax {
-  position: relative; z-index: 3; text-align: center; padding: 0 26px;
-  opacity: 0; transform: translateY(24px); pointer-events: none;
-  text-shadow: 0 4px 40px rgba(0,0,0,0.85);
+.descend-veil {
+  position: absolute; inset: 0; z-index: 5; opacity: 0; pointer-events: none;
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(to bottom,
+    #ffffff 0%,
+    #ffffff 26%,
+    #eaddcc 38%,
+    #c99a67 50%,
+    var(--wood) 62%,
+    #34231a 78%,
+    var(--concrete) 92%,
+    var(--concrete) 100%
+  );
 }
-.climax-lead { font-family: var(--serif); font-style: italic; font-weight: 400; font-size: clamp(30px, 6.4vw, 78px); color: #fff; line-height: 1.05; }
-.climax-body { margin-top: clamp(16px, 3vh, 30px); font-size: clamp(13px, 1.8vw, 18px); font-weight: 300; letter-spacing: 0.14em; color: rgba(255,235,215,0.86); line-height: 1.7; }
+
+/* the line that introduces the cellar — sits on the gradient itself,
+   between the stairs above and the cellar below, so it stays subtle
+   rather than fighting a dark backdrop like the other sections do */
+.descend-text { position: relative; z-index: 1; text-align: center; padding: 0 26px; transform: translateY(16px); }
+.descend-lead { font-family: var(--serif); font-style: italic; font-weight: 400; font-size: clamp(26px, 5.2vw, 58px); line-height: 1.1; color: #2f2013; opacity: 0.82; }
+.descend-body { margin-top: clamp(14px, 2.6vh, 26px); font-size: clamp(12px, 1.6vw, 17px); font-weight: 300; letter-spacing: 0.13em; color: rgba(47,32,19,0.68); line-height: 1.7; }
+.descend-arrow {
+  margin: clamp(22px, 4.5vh, 42px) auto 0; display: block; width: 20px; height: 20px;
+  fill: none; stroke: rgba(47,32,19,0.4); stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round;
+  animation: bob 2.2s var(--ease) infinite;
+}
 
 /* hotspots */
 .hotspots { position: absolute; inset: 0; z-index: 4; opacity: 0; pointer-events: none; transition: opacity 0.9s var(--ease); }
