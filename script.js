@@ -28,15 +28,13 @@
   const hero = $("#scHero");
   const scFloor = $("#scFloor");
   const scCellar = $("#scCellar");
-  const heroBg = $(".hero-bg");
   const floorContent = $(".floor-content");
   const climax = $("#climax");
-  const flash = $("#flash");
   const depthFill = $("#depthFill");
   const depthLabel = $("#depthLabel");
 
   /* Total scroll length of the journey. Longer = slower, more cinematic. */
-  const TRACK_VH = reduce ? 260 : 480;
+  const TRACK_VH = reduce ? 320 : 800;
   track.style.height = TRACK_VH + "vh";
 
   /* ---------- reveal the hero on load ---------- */
@@ -56,7 +54,6 @@
      descend past the floor slab and arrive in the cellar.
      ============================================================ */
 
-  let flashed = false;
   let ticking = false;
 
   function render() {
@@ -70,19 +67,14 @@
     scFloor.style.transform = `translateY(${(100 - camera).toFixed(2)}%)`;
     scCellar.style.transform = `translateY(${(200 - camera).toFixed(2)}%)`;
 
-    // very light parallax on the staircase image = depth without a zoom
-    heroBg.style.transform = `translateY(${lerp(0, 8, range(p, 0, 0.4)).toFixed(2)}%)`;
-
-    // mellometasje text fades up as the floor reaches centre, fades as it leaves
-    floorContent.style.opacity = clamp(1 - Math.abs(camera - 100) / 85).toFixed(3);
+    // mellometasje text fades in and out as the floor passes through the centre
+    // (wide plateau so it stays readable through a long stretch of scrolling)
+    const dist = Math.abs(camera - 100);
+    floorContent.style.opacity = clamp((72 - dist) / 45).toFixed(3);
 
     hero.style.pointerEvents = camera > 90 ? "none" : "auto";
-    scFloor.setAttribute("aria-hidden", camera < 40 || camera > 160 ? "true" : "false");
+    scFloor.setAttribute("aria-hidden", camera < 30 || camera > 170 ? "true" : "false");
     scCellar.setAttribute("aria-hidden", camera < 150 ? "true" : "false");
-
-    // camera-flash the moment we drop through the floor into the cellar
-    if (!flashed && camera >= 150) triggerFlash();
-    if (flashed && camera < 130) flashed = false;
 
     /* ---- climax text (once the cellar is settled) ---- */
     const climaxIn = range(p, 0.80, 0.87);
@@ -94,6 +86,7 @@
     document.body.classList.toggle("menu-live", p >= 0.94);
 
     /* ---- theme states + grain ---- */
+    document.body.classList.toggle("light-scene", camera < 95);   // white landing → dark topbar ink
     document.body.classList.toggle("descending", camera > 20 && camera < 150);
     document.body.classList.toggle("arrived", camera >= 150);
 
@@ -102,14 +95,6 @@
     depthLabel.textContent =
       camera < 40  ? "1. ETASJE" :
       camera < 150 ? "MELLOM ETASJENE" : "KJELLEREN";
-  }
-
-  function triggerFlash() {
-    flashed = true;
-    if (reduce) return;
-    flash.classList.remove("pop");
-    void flash.offsetWidth; // restart animation
-    flash.classList.add("pop");
   }
 
   function onScroll() {
@@ -121,28 +106,6 @@
   window.addEventListener("scroll", onScroll, { passive: true });
   window.addEventListener("resize", render);
   render();
-
-  /* ============================================================
-     COUNTDOWN
-     ============================================================ */
-  const pad = (n) => String(n).padStart(2, "0");
-  const cd = {
-    d: $("#cdDays"), h: $("#cdHours"), m: $("#cdMins"), s: $("#cdSecs"),
-  };
-  function tick() {
-    let diff = ANNIVERSARY - new Date();
-    if (diff < 0) diff = 0;
-    const days = Math.floor(diff / 864e5);
-    const hrs = Math.floor((diff % 864e5) / 36e5);
-    const min = Math.floor((diff % 36e5) / 6e4);
-    const sec = Math.floor((diff % 6e4) / 1e3);
-    cd.d.textContent = days;
-    cd.h.textContent = pad(hrs);
-    cd.m.textContent = pad(min);
-    cd.s.textContent = pad(sec);
-  }
-  tick();
-  setInterval(tick, 1000);
 
   /* ============================================================
      HOTSPOTS → MODAL

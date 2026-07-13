@@ -12,14 +12,13 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
 
-<link rel="stylesheet" href="styles.css?v=4" />
+<link rel="stylesheet" href="styles.css?v=6" />
 </head>
 <body>
 
 <!-- ============ Global overlays ============ -->
 <div class="grain" aria-hidden="true"></div>
 <div class="vignette" aria-hidden="true"></div>
-<div class="flash" id="flash" aria-hidden="true"></div>
 
 <!-- ============ Chrome ============ -->
 <header class="topbar" id="topbar">
@@ -54,7 +53,6 @@
   <!-- SCENE 1 — The staircase IS the landing -->
   <section class="scene scene--hero" id="scHero">
     <div class="hero-bg"></div>
-    <div class="hero-scrim"></div>
 
     <a class="scroll-hint reveal" data-d="1" id="scrollHint" href="#" aria-label="Gå ned til kjelleren">
       <span>Kjelleren</span>
@@ -64,26 +62,11 @@
     </a>
   </section>
 
-  <!-- SCENE 2 — The floor in between (mellometasjen) -->
+  <!-- SCENE 2 — The floor in between (mellometasjen): plain text, fades in & out -->
   <section class="scene scene--floor" id="scFloor" aria-hidden="true">
     <div class="floor-content">
-      <p class="floor-kicker">Jubileum 2027</p>
-      <!-- Jubileumslogo — bytt ut M-merket med den ekte logoen -->
-      <span class="floor-logo" aria-label="Jubileumslogo">
-        <svg viewBox="0 0 64 40" aria-hidden="true"><path d="M4 38 L20 6 L32 26 L44 6 L60 38" /></svg>
-      </span>
-      <p class="floor-title">115 år</p>
+      <p class="floor-title">Mannhullet 2027</p>
       <p class="floor-date">29. januar&nbsp;→&nbsp;6. februar 2027</p>
-
-      <div class="countdown" id="countdown" role="timer" aria-label="Nedtelling til jubileet">
-        <div class="cd-unit"><span class="cd-num" id="cdDays">--</span><span class="cd-lab">Dager</span></div>
-        <span class="cd-sep">:</span>
-        <div class="cd-unit"><span class="cd-num" id="cdHours">--</span><span class="cd-lab">Timer</span></div>
-        <span class="cd-sep">:</span>
-        <div class="cd-unit"><span class="cd-num" id="cdMins">--</span><span class="cd-lab">Min</span></div>
-        <span class="cd-sep">:</span>
-        <div class="cd-unit"><span class="cd-num" id="cdSecs">--</span><span class="cd-lab">Sek</span></div>
-      </div>
     </div>
   </section>
 
@@ -140,6 +123,6 @@
   </div>
 </div>
 
-<script src="script.js?v=4"></script>
+<script src="script.js?v=6"></script>
 </body>
 </html>

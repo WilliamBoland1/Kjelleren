@@ -64,24 +64,23 @@ body.arrived .grain    { opacity: 0.16; }
 }
 body.arrived .vignette { box-shadow: inset 0 0 30vmax rgba(0,0,0,0.85); }
 
-/* camera-flash on arrival */
-.flash {
-  position: fixed; inset: 0; z-index: 95; pointer-events: none;
-  background: #fff; opacity: 0;
-}
-.flash.pop { animation: flashpop 0.5s ease-out; }
-@keyframes flashpop {
-  0% { opacity: 0; } 6% { opacity: 0.9; } 100% { opacity: 0; }
-}
-
 /* ============ Topbar ============ */
 .topbar {
   position: fixed; top: 0; left: 0; right: 0; z-index: 70;
   display: flex; align-items: flex-start; justify-content: space-between;
   padding: clamp(18px, 3.5vw, 38px) clamp(20px, 4vw, 48px);
-  color: #fff;
-  text-shadow: 0 2px 14px rgba(0,0,0,0.55);   /* legible on bright wood + dark cellar */
+  color: #fff;                                  /* light — for the dark scenes */
+  text-shadow: 0 2px 14px rgba(0,0,0,0.45);
+  transition: color 0.5s var(--ease);
 }
+/* on the white-bordered landing, flip everything to dark ink */
+body.light-scene .topbar,
+body.light-scene .brand,
+body.light-scene .brand-word,
+body.light-scene .brand-est,
+body.light-scene .sound-toggle { color: #14100c; text-shadow: none; }
+body.light-scene .brand-mark { stroke: #14100c; }
+body.light-scene .sound-bars i { background: #14100c; }
 .brand { display: flex; flex-direction: column; gap: 6px; text-decoration: none; color: #fff; }
 .brand-word { font-family: var(--serif); font-size: clamp(24px, 3.2vw, 34px); font-weight: 500; line-height: 1; letter-spacing: 0.01em; }
 .brand-est { font-size: clamp(12px, 1.4vw, 15px); font-weight: 500; letter-spacing: 0.06em; opacity: 0.92; }
@@ -125,19 +124,12 @@ body.arrived .depth-label { color: var(--amber); }
 .scene { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; will-change: opacity, transform; }
 
 /* ---- Scene 1: the staircase IS the landing ---- */
-.scene--hero { background: #201812; }
+/* white borders; image shown whole (contain) so it keeps its real proportions — no zoom/pixelation */
+.scene--hero { background: #ffffff; }
 .hero-bg {
   position: absolute; inset: 0;
   background-image: url("static/trappa.jpg");
-  background-size: cover; background-position: 50% 40%;
-  filter: brightness(0.9) saturate(1.02) contrast(1.02);
-}
-/* only a soft darkening top & bottom so the corner labels + "Kjelleren" stay legible */
-.hero-scrim {
-  position: absolute; inset: 0;
-  background: linear-gradient(180deg,
-    rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.08) 20%,
-    rgba(0,0,0,0) 52%, rgba(0,0,0,0.15) 78%, rgba(0,0,0,0.6) 100%);
+  background-size: contain; background-repeat: no-repeat; background-position: center;
 }
 .scroll-hint { z-index: 2; }
 
@@ -151,24 +143,20 @@ body.arrived .depth-label { color: var(--amber); }
   position: absolute; bottom: clamp(28px, 6vh, 58px); left: 50%; transform: translateX(-50%);
   display: flex; flex-direction: column; align-items: center; gap: 10px;
   text-decoration: none; color: #fff;
+  mix-blend-mode: difference;   /* legible on wood, dark, and the white borders alike */
   font-family: var(--serif); font-weight: 500; font-size: clamp(24px, 3.4vw, 36px); letter-spacing: 0.01em;
-  text-shadow: 0 2px 16px rgba(0,0,0,0.65);
 }
 .scroll-hint svg { width: 30px; height: 30px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; animation: bob 2.2s var(--ease) infinite; }
 @keyframes bob { 0%,100%{ transform: translateY(0); opacity: 0.7; } 50%{ transform: translateY(6px); opacity: 1; } }
 
-/* ---- Scene 2: the floor in between (mellometasjen) — a dark interstitial ---- */
-.scene--floor { background: radial-gradient(circle at 50% 42%, #100f0e 0%, #030303 78%); }
+/* ---- Scene 2: the floor in between (mellometasjen) — plain text on black ---- */
+.scene--floor { background: #050505; }
 .floor-content {
   position: relative; z-index: 2; text-align: center; padding: 0 26px;
-  display: flex; flex-direction: column; align-items: center;
+  display: flex; flex-direction: column; align-items: center; gap: clamp(16px, 3vh, 30px);
 }
-.floor-kicker { font-size: clamp(12px, 1.6vw, 15px); letter-spacing: 0.42em; text-transform: uppercase; color: var(--silver-dim); text-indent: 0.42em; }
-.floor-logo { margin: clamp(22px, 4.5vh, 44px) 0 clamp(18px, 3.5vh, 34px); }
-.floor-logo svg { width: clamp(72px, 11vw, 112px); height: auto; fill: none; stroke: var(--silver); stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }
-.floor-title { font-family: var(--serif); font-weight: 400; font-size: clamp(56px, 12vw, 140px); color: var(--platinum); line-height: 0.9; }
-.floor-date { margin-top: clamp(14px, 2.5vh, 26px); font-size: clamp(14px, 2vw, 20px); font-weight: 300; letter-spacing: 0.12em; color: var(--silver); }
-.floor-content .countdown { margin-top: clamp(28px, 5vh, 52px); }
+.floor-title { font-family: var(--serif); font-weight: 400; font-size: clamp(38px, 7vw, 88px); color: var(--platinum); line-height: 1; }
+.floor-date { font-size: clamp(15px, 2vw, 22px); font-weight: 300; letter-spacing: 0.14em; color: var(--silver); }
 
 /* ---- Scene 3: cellar ---- */
 .scene--cellar { background: #000; }
