@@ -9,7 +9,9 @@
       "Bash(npm init *)",
       "Bash(npm install *)",
       "Bash(npx playwright *)",
-      "Bash(node capture.cjs)"
+      "Bash(node capture.cjs)",
+      "Read(//c/Users/willi/AppData/Local/Temp/claude/c--Users-willi-Desktop-jassing-Kjeller/72af11a2-7a3b-4ea4-9fc1-7e4345040e7a/scratchpad/pw/**)",
+      "Bash(node shot.js)"
     ]
   }
 }

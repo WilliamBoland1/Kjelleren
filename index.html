@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
 
-<link rel="stylesheet" href="styles.css?v=7" />
+<link rel="stylesheet" href="styles.css?v=8" />
 </head>
 <body>
 
@@ -24,7 +24,7 @@
 <header class="topbar" id="topbar">
   <div class="brand">
     <span class="brand-word">Mannhullet</span>
-    <span class="brand-est">Est 1915</span>
+    <span class="brand-est">Est 1917</span>
   </div>
   <div class="topbar-right">
     <!-- Jubileumslogo -->
@@ -38,33 +38,42 @@
   </div>
 </header>
 
-<!-- ============ Depth gauge ============ -->
+<!-- ============ Descent progress — visible the whole way down ============ -->
 <aside class="depth" id="depth" aria-hidden="true">
-  <span class="depth-label" id="depthLabel">1. ETASJE</span>
-  <div class="depth-track"><div class="depth-fill" id="depthFill"></div></div>
-  <span class="depth-meta">MARIN → KJELLER</span>
+  <div class="depth-track">
+    <div class="depth-fill" id="depthFill"></div>
+    <div class="depth-marker" id="depthMarker"></div>
+  </div>
+  <span class="depth-dest">Kjelleren</span>
 </aside>
 
-<!-- ============ The fixed cinematic stage ============ -->
-<div class="stage" id="stage">
+<!-- ============ The building — one continuous gradient, normal document flow ============
+     Scroll position IS the descent. Nothing is faked with transforms — the
+     browser's native scroll carries you straight down through the fade. ============ -->
+<main class="building" id="building">
 
-  <!-- SCENE 1 — The staircase IS the landing -->
-  <section class="scene scene--hero" id="scHero">
+  <!-- Floor 1 — the atrium, seen through the elevator glass -->
+  <section class="floor floor--atrium" id="floorAtrium">
     <div class="hero-bg"></div>
 
-    <a class="scroll-hint reveal" data-d="1" id="scrollHint" href="#" aria-label="Gå ned til kjelleren">
-      <span>Kjelleren</span>
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M12 4 L12 18" /><path d="M6 13 l6 6 6-6" />
-      </svg>
+    <a class="scroll-hint reveal" data-d="1" id="scrollHint" href="#floorCellar" aria-label="Gå ned til kjelleren">
+      <span class="scroll-hint-line" aria-hidden="true"></span>
     </a>
   </section>
 
-  <!-- SCENE 4 & 5 — Clean arrival, then the cellar becomes a menu -->
-  <section class="scene scene--cellar" id="scCellar" aria-hidden="true">
+  <!-- The descent — no scenery, just the building's own wall gradually losing
+       its daylight. A single smooth fade, not a place with things in it. -->
+  <section class="floor floor--transition" id="floorTransition">
+    <div class="waypoint" style="--wy:46%">
+      <p class="waypoint-lead">MANNHULLET HAR JUBILEUM</p>
+      <p class="waypoint-body">110-år med Trondheims beste linjeforening skal<br />feires.</p>
+    </div>
+  </section>
+
+  <!-- The cellar — the elevator doors open on the party -->
+  <section class="floor floor--cellar" id="floorCellar">
     <div class="cellar-img" id="cellarImg"></div>
 
-    <!-- Scene 5: interactive hotspots (the cellar IS the menu) -->
     <div class="hotspots" id="hotspots">
       <button class="hot" style="--x:41%;--y:37%" data-key="historie">
         <span class="hot-dot"></span><span class="hot-name">Historien</span>
@@ -92,20 +101,7 @@
     <div class="cellar-hint" id="cellarHint">Alt her nede er en dør. Trykk deg her inn.</div>
   </section>
 
-  <!-- The descent — a gradient bridging the two photographs, carrying the line that introduces the cellar -->
-  <div class="descend-veil" id="descendVeil">
-    <div class="descend-text" id="descendText">
-      <p class="descend-lead">Alle finner veien ned hit.</p>
-      <p class="descend-body">I 115 år har generasjoner av mariner<br />tatt den samme reisen.</p>
-      <svg class="descend-arrow" viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M12 4 L12 18" /><path d="M6 13 l6 6 6-6" />
-      </svg>
-    </div>
-  </div>
-</div>
-
-<!-- scroll track that drives the stage -->
-<div class="scroll-track" id="scrollTrack" aria-hidden="true"></div>
+</main>
 
 <!-- ============ Modal ============ -->
 <div class="modal-root" id="modalRoot" aria-hidden="true">
@@ -118,6 +114,6 @@
   </div>
 </div>
 
-<script src="script.js?v=7"></script>
+<script src="script.js?v=8"></script>
 </body>
 </html>

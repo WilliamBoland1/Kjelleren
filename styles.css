@@ -1,7 +1,10 @@
 /* ============================================================
    MANNHULLET · 110 ÅR
    "Alle finner veien ned hit."
-   A scroll-driven descent from the Marin building to the cellar.
+   A single continuous building, seen from a glass elevator.
+   Scroll position is the elevator's position — nothing here
+   fakes the descent with transforms; the browser's native
+   scroll carries you straight down through the section.
    ============================================================ */
 
 :root {
@@ -20,12 +23,16 @@
   --neon:       #ff6a00;
   --cyan:       #2fc8ff;
   --wood:       #6b3f22;
-  --concrete:   #221f1c;
+  --concrete:   #0b0a08;
 
   --serif: "Cormorant Garamond", "Georgia", "Times New Roman", serif;
   --sans:  "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
 
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* elevator depth, 0 (ground floor) → 1 (cellar). Written once per frame by script.js;
+     everything below reads it declaratively via calc()/color-mix() — no scene toggles. */
+  --depth: 0;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -34,7 +41,7 @@ html { scroll-behavior: auto; -webkit-text-size-adjust: 100%; }
 
 body {
   font-family: var(--sans);
-  background: var(--abyss);
+  background: var(--concrete);
   color: var(--silver);
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
@@ -45,42 +52,35 @@ body.no-scroll { overflow: hidden; }
 
 /* ============ Global overlays ============ */
 
-/* film grain — subtle up top, heavier in the cellar (via body.arrived) */
+/* film grain — thin in daylight, heavier once you're deep in the building */
 .grain {
   position: fixed; inset: 0;
   z-index: 90; pointer-events: none;
-  opacity: 0.05;
+  opacity: calc(0.05 + var(--depth) * 0.11);
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   mix-blend-mode: overlay;
-  transition: opacity 1.2s var(--ease);
 }
-body.descending .grain { opacity: 0.09; }
-body.arrived .grain    { opacity: 0.16; }
 
 .vignette {
   position: fixed; inset: 0; z-index: 80; pointer-events: none;
-  box-shadow: inset 0 0 22vmax rgba(0,0,0,0.6);
-  transition: box-shadow 1s var(--ease);
+  box-shadow: inset 0 0 calc(22vmax + var(--depth) * 8vmax) rgba(0,0,0, calc(0.6 + var(--depth) * 0.25));
 }
-body.arrived .vignette { box-shadow: inset 0 0 30vmax rgba(0,0,0,0.85); }
 
 /* ============ Topbar ============ */
 .topbar {
   position: fixed; top: 0; left: 0; right: 0; z-index: 70;
   display: flex; align-items: flex-start; justify-content: space-between;
   padding: clamp(18px, 3.5vw, 38px) clamp(20px, 4vw, 48px);
-  color: #fff;                                  /* light — for the dark scenes */
-  text-shadow: 0 2px 14px rgba(0,0,0,0.45);
-  transition: color 0.5s var(--ease);
+  /* a permanent, subtle scrim — not a scroll-triggered dimming effect, just enough
+     contrast that the ink swap below never goes illegible mid-transition */
+  background: linear-gradient(to bottom, rgba(0,0,0, calc(0.24 + var(--depth) * 0.34)), transparent);
+  /* ink itself swaps quickly around the one point where the wall crosses mid-grey,
+     rather than fading linearly across the whole descent — that would spend a long
+     stretch of scroll with low-contrast grey ink on a similarly grey wall */
+  color: color-mix(in oklab, #14100c, #fff clamp(0%, calc((var(--depth) - 0.35) * 500%), 100%));
+  text-shadow: 0 2px 14px rgba(0,0,0, calc(0.15 + var(--depth) * 0.35));
 }
-/* on the white-bordered landing, flip everything to dark ink */
-body.light-scene .topbar,
-body.light-scene .brand,
-body.light-scene .brand-word,
-body.light-scene .brand-est,
-body.light-scene .sound-toggle { color: #14100c; text-shadow: none; }
-body.light-scene .sound-bars i { background: #14100c; }
-.brand { display: flex; flex-direction: column; gap: 6px; text-decoration: none; color: #fff; }
+.brand { display: flex; flex-direction: column; gap: 6px; text-decoration: none; color: inherit; }
 .brand-word { font-family: var(--serif); font-size: clamp(24px, 3.2vw, 34px); font-weight: 500; line-height: 1; letter-spacing: 0.01em; }
 .brand-est { font-size: clamp(12px, 1.4vw, 15px); font-weight: 500; letter-spacing: 0.06em; opacity: 0.92; }
 .topbar-right { display: flex; align-items: flex-start; gap: clamp(16px, 3vw, 30px); }
@@ -89,41 +89,78 @@ body.light-scene .sound-bars i { background: #14100c; }
 
 .sound-toggle {
   display: flex; align-items: center; gap: 9px;
-  background: none; border: none; cursor: pointer; color: #fff;
+  background: none; border: none; cursor: pointer; color: inherit;
   font-family: var(--sans); font-size: 12px; font-weight: 500; letter-spacing: 0.2em;
   text-shadow: inherit;
 }
 .sound-bars { display: flex; align-items: flex-end; gap: 2px; height: 13px; }
-.sound-bars i { width: 2px; height: 4px; background: #fff; opacity: 0.6; }
+.sound-bars i { width: 2px; height: 4px; background: currentColor; opacity: 0.6; }
 .sound-toggle[aria-pressed="true"] .sound-bars i { animation: eq 0.9s ease-in-out infinite; opacity: 1; }
 .sound-bars i:nth-child(2){ animation-delay: 0.15s; } .sound-bars i:nth-child(3){ animation-delay: 0.3s; } .sound-bars i:nth-child(4){ animation-delay: 0.45s; }
 @keyframes eq { 0%,100%{ height: 4px; } 50%{ height: 13px; } }
 
-/* ============ Depth gauge ============ */
+/* ============ Descent progress — always on screen, not just once you've scrolled ============ */
 .depth {
   position: fixed; right: clamp(16px, 4vw, 44px); top: 50%; transform: translateY(-50%);
-  z-index: 60; display: flex; flex-direction: column; align-items: center; gap: 12px;
-  opacity: 0; transition: opacity 0.8s var(--ease);
+  z-index: 60; display: flex; flex-direction: column; align-items: center; gap: 14px;
+  /* dark ink while the wall behind is still nearly white, flipping quickly to
+     the pale scheme once the wall has actually gone dark — same technique as
+     the topbar, so the gauge is legible for the whole trip, not just the end */
+  --gauge-ink: color-mix(in oklab, #262a30, var(--silver-dim) clamp(0%, calc((var(--depth) - 0.35) * 500%), 100%));
 }
-body.descending .depth, body.arrived .depth { opacity: 1; }
-.depth-label, .depth-meta {
-  font-size: 9.5px; letter-spacing: 0.3em; color: var(--silver-dim);
+.depth-track {
+  width: 2px; height: 34vh; position: relative; border-radius: 2px;
+  background: color-mix(in oklab, rgba(30,28,26,0.4), rgba(255,255,255,0.12) clamp(0%, calc((var(--depth) - 0.35) * 500%), 100%));
+}
+.depth-fill { position: absolute; top: 0; left: 0; right: 0; height: 0%; background: linear-gradient(var(--gauge-ink), var(--amber)); border-radius: 2px; }
+
+/* a small arrow riding down the track at the current position — no label,
+   just a marker, pointing the same way you're travelling */
+.depth-marker { position: absolute; left: 50%; top: 0%; width: 0; height: 0; }
+.depth-marker::before {
+  content: ""; position: absolute; left: 0; top: 0; transform: translate(-50%, -50%);
+  width: 0; height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 7px solid var(--amber);
+  filter: drop-shadow(0 0 4px rgba(255,122,30,0.5));
+}
+
+/* the destination — fixed at the bottom of the track the whole time, not a
+   reveal that only appears once you've arrived */
+.depth-dest {
+  font-size: 9.5px; letter-spacing: 0.3em; text-transform: uppercase;
   writing-mode: vertical-rl; text-orientation: mixed;
+  color: color-mix(in oklab, var(--gauge-ink), var(--amber) calc(var(--depth) * 100%));
 }
-.depth-label { color: var(--silver); transition: color 0.6s; }
-body.arrived .depth-label { color: var(--amber); }
-.depth-track { width: 2px; height: 34vh; background: rgba(255,255,255,0.12); position: relative; border-radius: 2px; }
-.depth-fill { position: absolute; top: 0; left: 0; right: 0; height: 0%; background: linear-gradient(var(--silver), var(--amber)); border-radius: 2px; }
 
-/* ============ Stage & scenes ============ */
-.stage { position: fixed; inset: 0; z-index: 10; overflow: hidden; }
-.scroll-track { position: relative; z-index: 1; }  /* height set in JS */
+/* ============ The building ============ */
+/* One plain gradient painted the full length of the page — daylight into
+   darkness, nothing else. No scenery, no objects to pass — just the wall
+   slowly losing its light, the way a room dims as the sun goes down. */
+.building {
+  position: relative;
+  /* stops are tuned to this page's actual floor heights (atrium 100vh / transition
+     260vh / cellar 100vh = 460vh total) so the tone reaches the cellar's own dark
+     value by ~78% — exactly where the real photo begins — with no brightness jump
+     at that seam. If the floor heights below change, shift these stops to match. */
+  background: linear-gradient(to bottom,
+    #ffffff 0%,
+    #ffffff 24%,
+    #dcdedf 36%,
+    #a9a9a8 48%,
+    #706864 58%,
+    #3d352f 68%,
+    #17130f 75%,
+    var(--concrete) 78%,
+    var(--concrete) 100%
+  );
+}
 
-.scene { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; will-change: opacity, transform; }
+.floor { position: relative; width: 100%; }
 
-/* ---- Scene 1: the staircase IS the landing ---- */
-/* white borders; image shown whole (contain) so it keeps its real proportions — no zoom/pixelation */
-.scene--hero { background: #ffffff; }
+/* ---- Floor 1: the atrium, framed like a view through glass ---- */
+.floor--atrium { min-height: 100vh; }
 .hero-bg {
   position: absolute;
   top: clamp(90px, 13vh, 130px); left: clamp(16px, 3vw, 40px);
@@ -131,61 +168,66 @@ body.arrived .depth-label { color: var(--amber); }
   background-image: url("static/Trapp2.jpg");
   background-size: contain; background-repeat: no-repeat; background-position: center;
 }
-.scroll-hint { z-index: 2; }
-
-.countdown { margin-top: clamp(34px, 6vh, 64px); display: inline-flex; align-items: flex-start; gap: clamp(8px, 2vw, 20px); }
-.cd-unit { display: flex; flex-direction: column; align-items: center; min-width: clamp(46px, 8vw, 78px); }
-.cd-num { font-family: var(--serif); font-weight: 400; font-size: clamp(30px, 6vw, 62px); color: var(--platinum); line-height: 1; font-variant-numeric: tabular-nums; }
-.cd-lab { font-size: clamp(8px, 1vw, 10px); letter-spacing: 0.34em; color: var(--silver-dim); margin-top: 12px; }
-.cd-sep { font-family: var(--serif); font-size: clamp(26px, 5vw, 52px); color: var(--blue-muted); line-height: 1.1; }
-
+/* a quiet cue, not a button — just a thin travelling line, no label,
+   so it reads as signage rather than UI chrome */
 .scroll-hint {
-  position: absolute; bottom: clamp(28px, 6vh, 58px); left: 50%; transform: translateX(-50%);
-  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  position: absolute; bottom: clamp(34px, 7vh, 64px); left: 50%; transform: translateX(-50%);
+  z-index: 2;
+  display: flex; flex-direction: column; align-items: center;
   text-decoration: none; color: #fff;
-  background: rgba(10,8,6,0.55); backdrop-filter: blur(6px);
-  border: 1px solid rgba(255,255,255,0.14);
-  padding: 10px 22px; border-radius: 100px;
-  font-family: var(--serif); font-weight: 500; font-size: clamp(20px, 2.6vw, 28px); letter-spacing: 0.01em;
+  animation: hint-breathe 4.5s ease-in-out infinite;
 }
-.scroll-hint svg { width: 30px; height: 30px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; animation: bob 2.2s var(--ease) infinite; }
-@keyframes bob { 0%,100%{ transform: translateY(0); opacity: 0.7; } 50%{ transform: translateY(6px); opacity: 1; } }
+.scroll-hint-line {
+  position: relative; width: 1px; height: 40px; overflow: hidden;
+  background: rgba(255,255,255,0.22);
+}
+.scroll-hint-line::after {
+  content: ""; position: absolute; inset: 0; top: -60%;
+  background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.9) 50%, transparent);
+  animation: hint-trickle 2.6s ease-in-out infinite;
+}
+@keyframes hint-trickle { 0% { top: -60%; } 100% { top: 100%; } }
+@keyframes hint-breathe { 0%, 100% { opacity: 0.65; } 50% { opacity: 1; } }
 
-/* ---- Scene 3: cellar ---- */
-.scene--cellar { background: #000; }
+/* ---- The descent: an empty stretch of the same wall, just dimming. No
+   scenery, no objects — the fade itself is the whole effect. ---- */
+.floor--transition { min-height: 260vh; }
+
+/* a plaque on the wall you pass on the way down — static, no fade choreography needed */
+.waypoint {
+  position: absolute; left: 50%; top: var(--wy); transform: translate(-50%, -50%);
+  z-index: 2; text-align: center; padding: 0 26px; max-width: 640px;
+}
+.waypoint-lead { font-family: var(--serif); font-style: italic; font-weight: 400; font-size: clamp(26px, 5.2vw, 58px); line-height: 1.1; color: #f1e6d8; opacity: 0.85; }
+.waypoint-body { margin-top: clamp(14px, 2.6vh, 26px); font-size: clamp(12px, 1.6vw, 17px); font-weight: 300; letter-spacing: 0.13em; color: rgba(241,230,216,0.6); line-height: 1.7; }
+
+/* ---- The cellar: not a scene that appears, but an image that slowly
+   surfaces out of the same darkness the whole page has been fading into ---- */
+/* shares --concrete with the gradient above it (rather than a separate #000)
+   so the two are never a color apart at the seam */
+.floor--cellar { min-height: 100vh; background: var(--concrete); }
 .cellar-img {
   position: absolute; inset: 0;
   background-image: url("static/kjelleren.jpg");
   background-size: cover; background-position: 50% 42%;
   transform: scale(1.06);
-  filter: saturate(1.05) contrast(1.05);
-}
-
-.descend-veil {
-  position: absolute; inset: 0; z-index: 5; opacity: 0; pointer-events: none;
-  display: flex; align-items: center; justify-content: center;
-  background: linear-gradient(to bottom,
-    #ffffff 0%,
-    #ffffff 26%,
-    #eaddcc 38%,
-    #c99a67 50%,
-    var(--wood) 62%,
-    #34231a 78%,
-    var(--concrete) 92%,
-    var(--concrete) 100%
-  );
-}
-
-/* the line that introduces the cellar — sits on the gradient itself,
-   between the stairs above and the cellar below, so it stays subtle
-   rather than fighting a dark backdrop like the other sections do */
-.descend-text { position: relative; z-index: 1; text-align: center; padding: 0 26px; transform: translateY(16px); }
-.descend-lead { font-family: var(--serif); font-style: italic; font-weight: 400; font-size: clamp(26px, 5.2vw, 58px); line-height: 1.1; color: #2f2013; opacity: 0.82; }
-.descend-body { margin-top: clamp(14px, 2.6vh, 26px); font-size: clamp(12px, 1.6vw, 17px); font-weight: 300; letter-spacing: 0.13em; color: rgba(47,32,19,0.68); line-height: 1.7; }
-.descend-arrow {
-  margin: clamp(22px, 4.5vh, 42px) auto 0; display: block; width: 20px; height: 20px;
-  fill: none; stroke: rgba(47,32,19,0.4); stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round;
-  animation: bob 2.2s var(--ease) infinite;
+  /* emerges very gradually, starting almost indistinguishable from the
+     surrounding dark and only fully resolving right at the last moment —
+     a longer, darker overlap than a simple scroll-into-view reveal */
+  opacity: clamp(0, calc((var(--depth) - 0.74) * 3.85), 1);
+  filter: saturate(1.05) contrast(1.05) brightness(clamp(0.3, calc(0.3 + (var(--depth) - 0.74) * 2.7), 1));
+  /* a shadow framing the sides of the photo, growing in as it arrives — gives
+     the image its own edge and a clearer sense of "you've reached a room",
+     rather than it just being an extension of the fade behind it */
+  box-shadow:
+    inset 0 0 100px 20px rgba(0,0,0, calc(var(--depth) * 0.45)),
+    inset 90px 0 90px -70px rgba(0,0,0, calc(var(--depth) * 0.6)),
+    inset -90px 0 90px -70px rgba(0,0,0, calc(var(--depth) * 0.6));
+  /* the photo's own top edge is a hard rectangle no matter how slowly its
+     opacity fades in over scroll — this masks that edge into a gradient so
+     it blends into the wall above it instead of cutting straight across */
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, black 32%, black 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, black 32%, black 100%);
 }
 
 /* hotspots */
@@ -280,34 +322,23 @@ body.menu-live .cellar-hint { opacity: 1; }
 .contact-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
 .contact-row a { color: var(--amber); text-decoration: none; }
 
-/* ============ Static fallback (no-JS / reduced motion) ============ */
-.nojs-note { display: none; }
-
 /* ============ Responsive ============ */
 @media (max-width: 720px) {
   .depth { display: none; }
-  .countdown { gap: 4px; }
-  .cd-sep { display: none; }
-  .cd-unit { min-width: 62px; }
   .hot-name { font-size: 10px; letter-spacing: 0.1em; }
   .topbar { padding: 16px 18px; }
   .brand-word { font-size: 22px; }
 }
 
-/* short / laptop / landscape viewports — keep the hint clear of the countdown */
 @media (max-height: 820px) {
-  .numeral { font-size: clamp(84px, 26vh, 210px); }
-  .kicker { margin-bottom: clamp(8px, 2vh, 20px); }
-  .hero-sub { margin-top: clamp(10px, 2vh, 24px); }
-  .countdown { margin-top: clamp(14px, 3vh, 40px); }
-  .cd-num { font-size: clamp(26px, 7vh, 46px); }
-  .scroll-hint { bottom: 12px; gap: 7px; }
-}
-@media (max-height: 520px) {
-  .scroll-hint span { display: none; }        /* leave just the chevron */
+  .scroll-hint { bottom: 12px; }
 }
 
+/* shorter, faster descent — same continuous building, less scroll distance */
 @media (prefers-reduced-motion: reduce) {
-  .hot-dot::after, .scroll-hint svg, .sound-bars i, .grain { animation: none !important; }
+  .floor--atrium { min-height: 50vh; }
+  .floor--transition { min-height: 100vh; }
+  .floor--cellar { min-height: 50vh; }
+  .hot-dot::after, .scroll-hint, .scroll-hint-line::after, .sound-bars i, .grain { animation: none !important; }
   .reveal { transition-duration: 0.4s; }
 }

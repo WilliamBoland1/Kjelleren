@@ -1,8 +1,10 @@
 /* ============================================================
    MANNHULLET · 110 ÅR — the descent engine
-   A fixed cinematic "stage" whose scenes are driven entirely by
-   scroll progress (0 → 1). Nothing scrolls visually; scrolling
-   moves the camera down the building and into the cellar.
+   The building is stationary; scrolling is the elevator moving
+   down through it. Depth (0 → 1) is written to a single CSS
+   custom property once per frame — every visual continuity
+   effect reads it declaratively via calc()/color-mix() in
+   styles.css. Nothing here fakes the descent with transforms.
    ============================================================ */
 
 (() => {
@@ -11,30 +13,24 @@
   /* --- Configurable jubilee date (local time) --- */
   const ANNIVERSARY = new Date("2027-01-29T19:00:00");
 
-  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
   /* ---------- helpers ---------- */
   const $ = (s) => document.querySelector(s);
   const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
   const lerp = (a, b, t) => a + (b - a) * t;
-  // normalized progress of `p` across the [a,b] window → 0..1
-  const range = (p, a, b) => clamp((p - a) / (b - a));
-  // smoothstep for softer easing on transforms
+  // smoothstep — eases gently at both ends, so change is slow at the very top
+  // and very bottom (a natural hold) and fastest through the middle.
   const smooth = (t) => t * t * (3 - 2 * t);
 
   /* ---------- elements ---------- */
-  const track = $("#scrollTrack");
-  const stage = $("#stage");
-  const hero = $("#scHero");
-  const scCellar = $("#scCellar");
-  const descendVeil = $("#descendVeil");
-  const descendText = $("#descendText");
+  const root = document.documentElement;
   const depthFill = $("#depthFill");
-  const depthLabel = $("#depthLabel");
+  const depthMarker = $("#depthMarker");
 
-  /* Total scroll length of the journey. Longer = slower, more cinematic. */
-  const TRACK_VH = reduce ? 240 : 550;
-  track.style.height = TRACK_VH + "vh";
+  /* audio state — declared here (ahead of the initial render() call below)
+     so updateAudioDepth() can safely read them before the WebAudio section
+     further down has run */
+  let audio = null;
+  let playing = false;
 
   /* ---------- reveal the hero on load ---------- */
   window.addEventListener("load", () => {
@@ -44,50 +40,31 @@
   });
 
   /* ============================================================
-     SCROLL → CAMERA (a continuous vertical pan through a
-     cross-section of the building — no zoom, no year markers)
-
-     The two scenes are stacked like a filmstrip, each 100vh:
-       0 = staircase landing   1 = cellar
-     A single "camera" (0 → 100%) slides the strip upward, so we
-     descend straight into the cellar.
+     SCROLL → DEPTH
+     depth 0 = ground floor, depth 1 = fully arrived in the cellar.
+     This single number drives every continuous effect in CSS.
      ============================================================ */
+
+  function computeDepth() {
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    const raw = max > 0 ? clamp(window.scrollY / max) : 0;
+    return smooth(raw);
+  }
 
   let ticking = false;
 
   function render() {
     ticking = false;
-    const max = document.documentElement.scrollHeight - window.innerHeight;
-    const p = max > 0 ? clamp(window.scrollY / max) : 0;
+    const depth = computeDepth();
 
-    // camera travels 0 → 100% across the descent, then holds on the cellar
-    const camera = 100 * smooth(range(p, 0.05, 0.82));
-    hero.style.transform     = `translateY(${(0   - camera).toFixed(2)}%)`;
-    scCellar.style.transform = `translateY(${(100 - camera).toFixed(2)}%)`;
+    root.style.setProperty("--depth", depth.toFixed(4));
+    depthFill.style.height = (depth * 100).toFixed(1) + "%";
+    depthMarker.style.top = (depth * 100).toFixed(1) + "%";
 
-    hero.style.pointerEvents = camera > 45 ? "none" : "auto";
-    scCellar.setAttribute("aria-hidden", camera < 75 ? "true" : "false");
+    // the cellar becomes the menu once you've fully arrived
+    document.body.classList.toggle("menu-live", depth >= 0.93);
 
-    // gradual white→cellar-color fade through the transition; the intro
-    // line rides on this gradient, then the cellar arrives clean beneath it
-    const veilIn = range(camera, 10, 42);
-    const veilOut = range(camera, 68, 96);
-    const veilOpacity = veilIn * (1 - veilOut);
-    descendVeil.style.opacity = veilOpacity.toFixed(3);
-    descendText.style.opacity = veilOpacity.toFixed(3);
-    descendText.style.transform = `translateY(${lerp(16, -10, veilIn)}px)`;
-
-    /* ---- the cellar becomes the menu ---- */
-    document.body.classList.toggle("menu-live", p >= 0.94);
-
-    /* ---- theme states + grain ---- */
-    document.body.classList.toggle("light-scene", camera < 48);   // white landing → dark topbar ink
-    document.body.classList.toggle("descending", camera > 10 && camera < 75);
-    document.body.classList.toggle("arrived", camera >= 75);
-
-    /* ---- depth gauge ---- */
-    depthFill.style.height = (p * 100).toFixed(1) + "%";
-    depthLabel.textContent = camera < 20 ? "1. ETASJE" : "KJELLEREN";
+    updateAudioDepth(depth);
   }
 
   function onScroll() {
@@ -239,8 +216,6 @@
     0, BASS_ROOT * 1.19, 0, 0,
   ];
 
-  let audio = null;
-  let playing = false;
   let step = 0;
   let nextNoteTime = 0;
   let schedulerId = null;
@@ -353,15 +328,12 @@
     schedulerId = setTimeout(scheduler, LOOKAHEAD_MS);
   }
 
-  function updateAudioDepth() {
+  function updateAudioDepth(depth) {
     if (!audio || !playing) return;
-    const max = document.documentElement.scrollHeight - window.innerHeight;
-    const p = max > 0 ? clamp(window.scrollY / max) : 0;
     // deeper = louder + brighter — tempo stays constant, only the "openness" shifts
-    audio.master.gain.setTargetAtTime(lerp(0.16, 0.34, p), audio.ctx.currentTime, 0.4);
-    audio.filter.frequency.setTargetAtTime(lerp(450, 9000, p), audio.ctx.currentTime, 0.5);
+    audio.master.gain.setTargetAtTime(lerp(0.16, 0.34, depth), audio.ctx.currentTime, 0.4);
+    audio.filter.frequency.setTargetAtTime(lerp(450, 9000, depth), audio.ctx.currentTime, 0.5);
   }
-  window.addEventListener("scroll", updateAudioDepth, { passive: true });
 
   soundBtn.addEventListener("click", () => {
     const on = soundBtn.getAttribute("aria-pressed") === "true";
@@ -375,7 +347,7 @@
       scheduler();
       soundBtn.setAttribute("aria-pressed", "true");
       soundBtn.setAttribute("aria-label", "Skru av lyd");
-      updateAudioDepth();
+      updateAudioDepth(computeDepth());
     } else {
       playing = false;
       clearTimeout(schedulerId);
