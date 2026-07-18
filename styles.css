@@ -25,7 +25,7 @@
   font-family: var(--sans); font-size: 12px; font-weight: 500; letter-spacing: 0.2em;
   transition: color 0.2s ease;
 }
-.sound-toggle:hover, .sound-toggle:focus-visible { color: var(--ink); }
+.sound-toggle:hover, .sound-toggle:focus-visible { color: var(--amber); }
 .sound-bars { display: flex; align-items: flex-end; gap: 2px; height: 13px; }
 .sound-bars i { width: 2px; height: 4px; background: currentColor; opacity: 0.6; }
 .sound-toggle[aria-pressed="true"] .sound-bars i { animation: eq 0.9s ease-in-out infinite; opacity: 1; }
@@ -214,40 +214,104 @@
   mask-image: linear-gradient(to bottom, transparent 0, black 32%, black 100%);
 }
 
-/* hotspots */
+/* hotspots — dots are positioned in percentages of .floor--cellar (via --x/--y,
+   set inline per-dot from the HOTSPOTS config in script.js), the same box
+   .cellar-img fills with background-size:cover — so a dot placed on an object
+   in the photo tracks that object at any viewport width, never viewport px. */
 .hotspots { position: absolute; inset: 0; z-index: 4; opacity: 0; pointer-events: none; transition: opacity 0.9s var(--ease); }
 body.menu-live .hotspots { opacity: 1; pointer-events: auto; }
+
+/* The top nav (Les mer / Kontakt oss / Returnerende) leads back to the
+   site's other top-level pages — once the cellar photo starts resolving,
+   it recedes so Kjelleren reads as a self-contained domain rather than
+   just more page. Triggered by nav-recede (depth >= 0.74, the same point
+   .cellar-img itself starts fading in) rather than menu-live (0.93, when
+   the hotspots go interactive) so the nav's exit is paced with the photo's
+   own arrival instead of lagging behind it until the very end.
+   `animation: none` drops the entrance fadeUp (whose forwards fill would
+   otherwise keep pinning opacity to 1, outranking a plain opacity rule)
+   so the transition below is free to animate opacity on its own; leaving
+   nav-recede re-triggers fadeUp from scratch, echoing the original reveal. */
+.header-nav { transition: opacity 0.9s var(--ease); }
+body.nav-recede .header-nav { animation: none; opacity: 0; pointer-events: none; }
+/* Each dot is a <button> with a fixed 44x44 hit area (WCAG target-size) —
+   the visible core stays 8px; the hit box grows around it, never the dot
+   itself. .hot-name is positioned absolutely off the dot's own center
+   rather than sitting in the flex flow, so it never pulls the dot itself
+   off-target while invisible (the old row-centering approach did exactly
+   that — a big part of why dots used to drift off their objects). */
 .hot {
   position: absolute; left: var(--x); top: var(--y); transform: translate(-50%, -50%);
-  display: flex; align-items: center; gap: 12px;
-  background: none; border: none; cursor: pointer; color: #fff;
-  font-family: var(--sans); font-size: 12px; letter-spacing: 0.16em;
-  padding: 8px;
+  width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;
+  background: none; border: none; padding: 0; cursor: pointer;
 }
+.hot:focus-visible { outline: 2px solid #fff; outline-offset: 4px; border-radius: 50%; }
+
 .hot-dot {
-  position: relative; width: 13px; height: 13px; border-radius: 50%; flex: none;
-  background: var(--amber); box-shadow: 0 0 0 4px rgba(255,122,30,0.22), 0 0 18px 3px rgba(255,106,0,0.7);
+  position: relative; width: 8px; height: 8px; border-radius: 50%; flex: none;
+  background: var(--amber);
+  transition: background 0.15s ease-out, box-shadow 0.15s ease-out, opacity 0.15s ease-out;
 }
-.hot-dot::after {
-  content: ""; position: absolute; inset: -6px; border-radius: 50%;
-  border: 1px solid rgba(255,122,30,0.5); animation: ping 2.4s var(--ease) infinite;
+/* the pulsing ring — the only thing on this page that pulses. Static chrome
+   (depth scale, nav) stays flat; motion is reserved for "this is clickable". */
+.hot-dot::before {
+  content: ""; position: absolute; top: 50%; left: 50%; width: 28px; height: 28px;
+  border-radius: 50%; border: 1px solid rgba(255,122,30,0.3);
+  transform: translate(-50%, -50%) scale(1);
+  animation: hot-pulse 3s var(--ease) infinite;
+  animation-delay: var(--delay, 0s);
+  transition: width 0.15s ease-out, height 0.15s ease-out, border-color 0.15s ease-out;
 }
-@keyframes ping { 0%{ transform: scale(0.7); opacity: 0.9; } 100%{ transform: scale(2.4); opacity: 0; } }
+@keyframes hot-pulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(0.85); opacity: 0.9; }
+  50% { transform: translate(-50%, -50%) scale(1.25); opacity: 0.25; }
+}
+
+.hot:hover .hot-dot, .hot:focus-visible .hot-dot {
+  background: #ff9142; box-shadow: 0 0 14px 3px rgba(255,122,30,0.85);
+}
+.hot:hover .hot-dot::before, .hot:focus-visible .hot-dot::before {
+  width: 40px; height: 40px; border-color: rgba(255,122,30,0.6);
+  animation-play-state: paused;
+}
+
+/* visited: dims permanently for the session (JS-tracked, not localStorage)
+   so people can see at a glance what they've already opened */
+.hot.visited .hot-dot { opacity: 0.5; }
+
 .hot-name {
+  position: absolute; top: 50%; left: 100%; transform: translate(8px, -50%);
   white-space: nowrap; padding: 6px 12px; border-radius: 100px;
-  background: rgba(10,8,6,0.62); backdrop-filter: blur(6px);
+  background: rgba(10,8,6,0.72); backdrop-filter: blur(6px);
   border: 1px solid rgba(255,180,120,0.22);
-  opacity: 0; transform: translateX(-6px); transition: 0.35s var(--ease);
-  text-transform: uppercase;
+  font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: #fff;
+  opacity: 0; pointer-events: none; transition: opacity 0.15s ease-out, transform 0.15s ease-out;
 }
-.hot:hover .hot-name, .hot:focus-visible .hot-name { opacity: 1; transform: translateX(0); }
-.hot:focus-visible { outline: none; }
-.hot:focus-visible .hot-dot { box-shadow: 0 0 0 4px rgba(255,255,255,0.5), 0 0 18px 3px rgba(255,106,0,0.9); }
+.hot:hover .hot-name, .hot:focus-visible .hot-name { opacity: 1; transform: translate(14px, -50%); }
+/* dots past 70% left get this class from script.js so the label opens toward
+   the left instead of running off the edge of the frame */
+.hot--flip .hot-name { left: auto; right: 100%; transform: translate(-8px, -50%); }
+.hot--flip:hover .hot-name, .hot--flip:focus-visible .hot-name { transform: translate(-14px, -50%); }
+
+/* Mobile fallback (<=768px, see the responsive block below): the overlay
+   dots are hidden and the same three hotspots render as a plain stacked
+   list instead — the photo crops hard enough on small screens that three
+   floating dots crowd together and become unreliable tap targets. */
+.hotspot-list { display: none; }
 
 .cellar-hint {
-  position: absolute; bottom: clamp(20px, 5vh, 42px); left: 50%; transform: translateX(-50%);
-  z-index: 4; font-size: 11px; letter-spacing: 0.32em; text-transform: uppercase;
-  color: rgba(255,220,190,0.7); opacity: 0; transition: opacity 0.9s var(--ease) 0.3s;
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 4;
+  display: flex; justify-content: center;
+  padding: clamp(28px, 8vh, 56px) 20px clamp(20px, 5vh, 42px);
+  /* scrim behind the caption — it's the only text explaining the whole
+     mechanic, so it needs to hold contrast over a busy photo, not just a
+     flat dark background */
+  background: linear-gradient(to top, rgba(0,0,0,0.78), rgba(0,0,0,0) 100%);
+  opacity: 0; transition: opacity 0.9s var(--ease) 0.3s; pointer-events: none;
+}
+.cellar-hint span {
+  font-size: 11px; letter-spacing: 0.32em; text-transform: uppercase;
+  color: #fdf3ea; /* near-white against the scrim — clears 4.5:1 with room to spare */
 }
 body.menu-live .cellar-hint { opacity: 1; }
 
@@ -304,7 +368,40 @@ body.menu-live .cellar-hint { opacity: 1; }
 /* watermark breakpoint is in background.css */
 @media (max-width: 720px) {
   .depth { display: none; }
-  .hot-name { font-size: 10px; letter-spacing: 0.1em; }
+}
+
+/* <=768px: swap the floating dot layer for a stacked list. Kept as an
+   absolutely-positioned overlay within the same viewport (rather than
+   literal page flow below the photo) so it doesn't add scroll height —
+   .floor--cellar's height is load-bearing for the tuned depth/gradient
+   engine above (see .building's comment), and growing it on mobile would
+   shift every one of those tuned stops. */
+@media (max-width: 768px) {
+  .hotspots { display: none; }
+  .hotspot-list {
+    display: block;
+    position: absolute; left: 50%; bottom: clamp(70px, 16vh, 120px);
+    transform: translateX(-50%);
+    width: min(320px, 86vw); z-index: 4;
+    background: rgba(10,8,6,0.78); backdrop-filter: blur(6px);
+    border: 1px solid rgba(255,180,120,0.18); border-radius: 10px;
+    overflow: hidden;
+    opacity: 0; pointer-events: none; transition: opacity 0.9s var(--ease);
+  }
+  body.menu-live .hotspot-list { opacity: 1; pointer-events: auto; }
+  .hotspot-list li + li { border-top: 1px solid rgba(255,255,255,0.08); }
+  .hotspot-list button {
+    display: flex; align-items: center; gap: 12px; width: 100%;
+    padding: 14px 18px; background: none; border: none; color: #fff;
+    font-family: var(--sans); font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase;
+    text-align: left; cursor: pointer;
+  }
+  .hotspot-list button::before {
+    content: ""; flex: none; width: 8px; height: 8px; border-radius: 50%;
+    background: var(--amber); transition: opacity 0.15s ease-out;
+  }
+  .hotspot-list button:hover, .hotspot-list button:focus-visible { color: var(--amber); }
+  .hotspot-list button.visited::before { opacity: 0.5; }
 }
 /* .header-nav's own <=720px breakpoint is shared, in background.css */
 
@@ -370,7 +467,8 @@ body.menu-live .cellar-hint { opacity: 1; }
   .floor--atrium { min-height: 50vh; }
   .floor--transition { min-height: 100vh; }
   .floor--cellar { min-height: 50vh; }
-  .hot-dot::after, .sound-bars i, .grain { animation: none !important; }
+  .hot-dot::before, .sound-bars i, .grain { animation: none !important; }
+  .hot-dot::before { opacity: 0.3; transform: translate(-50%, -50%) scale(1); }
   .eyebrow, .countdown, .footer, .header-logo, .header-nav, .corner-right {
     animation: none;
     opacity: 1;

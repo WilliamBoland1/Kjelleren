@@ -132,7 +132,7 @@ body.no-scroll { overflow: hidden; }
   display: block;
   width: clamp(52px, 6.6vw, 74px);
   height: auto;
-  z-index: 3;
+  z-index: 5;
   filter: drop-shadow(0 0 30px rgba(91, 130, 196, 0.18));
   transition: opacity 0.2s ease;
 }
@@ -150,7 +150,7 @@ body.no-scroll { overflow: hidden; }
   position: fixed;
   top: clamp(0.9rem, 3vh, 1.75rem);
   right: clamp(0.9rem, 3vw, 1.75rem);
-  z-index: 3;
+  z-index: 5;
   display: flex;
   gap: clamp(1rem, 2.75vw, 1.5rem);
 }
@@ -167,8 +167,11 @@ body.no-scroll { overflow: hidden; }
   position: absolute;
   inset: -14px;
 }
+/* orange is the site's hover colour everywhere something is interactive
+   (nav links, dots, this) — it stays flat white/grey at rest so it never
+   reads as statically "branded", only as "you can click this" */
 .social-links a:hover,
-.social-links a:focus-visible { color: var(--ink); }
+.social-links a:focus-visible { color: var(--amber); }
 .social-links svg {
   width: clamp(18px, 2.4vw, 22px);
   height: clamp(18px, 2.4vw, 22px);
@@ -182,7 +185,7 @@ body.no-scroll { overflow: hidden; }
   position: fixed;
   top: clamp(0.9rem, 3vh, 1.75rem);
   right: clamp(0.9rem, 3vw, 1.75rem);
-  z-index: 3;
+  z-index: 5;
   display: flex;
   align-items: center;
   gap: clamp(1rem, 2.75vw, 1.5rem);
@@ -200,7 +203,7 @@ body.no-scroll { overflow: hidden; }
    net for the narrowest phones — it never triggers at normal widths. */
 .header-nav {
   position: fixed; top: clamp(0.9rem, 3vh, 1.75rem); left: 0; right: 0;
-  z-index: 3; display: flex; flex-wrap: wrap; justify-content: center; align-items: center;
+  z-index: 5; display: flex; flex-wrap: wrap; justify-content: center; align-items: center;
   gap: clamp(1.5rem, 3vw, 2.5rem); row-gap: 0.5rem;
 }
 .header-nav a {

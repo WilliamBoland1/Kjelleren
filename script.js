@@ -90,6 +90,9 @@
 
     // the cellar becomes the menu once you've fully arrived
     document.body.classList.toggle("menu-live", depth >= 0.93);
+    // the top nav recedes in step with the cellar photo's own reveal
+    // (same 0.74 threshold as .cellar-img's opacity curve, see styles.css)
+    document.body.classList.toggle("nav-recede", depth >= 0.74);
 
     updateAudioDepth(depth);
     updateFeaturedTrackVolume(depth);
@@ -107,8 +110,73 @@
 
   /* ============================================================
      HOTSPOTS → MODAL
+     Dots come from one config array — adding a fourth only means adding
+     one entry here. Positions are percentages of .floor--cellar (the same
+     box .cellar-img fills with background-size:cover), so they track the
+     photo's objects at any viewport width instead of drifting on resize.
      ============================================================ */
+  const HOTSPOTS = [
+    { id: "neon", label: "Neonskiltet", left: 43, top: 38, modalId: "neon" },
+    { id: "faner", label: "Fanene", left: 65, top: 29, modalId: "faner" },
+    { id: "dansegulv", label: "Dansegulvet", left: 33, top: 72, modalId: "dansegulv" },
+  ];
+
+  /* Reserved zones no dot may enter: the nav bar (top), the depth scale
+     (left edge), and the caption (bottom) — this is what caused an old dot
+     to collide with the "GRUNNPLAN" label. Dev-only in spirit (it only ever
+     logs), so it's harmless to leave running in production. */
+  const RESERVED_ZONES = [
+    { name: "nav bar (top 0–8%)", test: (l, t) => t <= 8 },
+    { name: "depth scale (left 0–10%)", test: (l, t) => l <= 10 },
+    { name: "caption (bottom 88–100%)", test: (l, t) => t >= 88 },
+  ];
+  function assertReservedZones(spots) {
+    spots.forEach((s) => {
+      RESERVED_ZONES.forEach((zone) => {
+        if (zone.test(s.left, s.top)) {
+          console.warn(`[hotspots] "${s.id}" (${s.left}%, ${s.top}%) falls inside the reserved ${zone.name} zone.`);
+        }
+      });
+    });
+  }
+  assertReservedZones(HOTSPOTS);
+
   const content = {
+    neon: {
+      kicker: "Neonskiltet",
+      title: "Skiltet som har brent i generasjoner",
+      html: `
+        <p>Den oransje trekanten har hengt over dansegulvet så lenge noen kan huske — kjellerens eget fyrtårn, tent kveld etter kveld i 110 år.</p>
+        <ul class="tl">
+          <li><span class="yr">1915</span> Marinteknikk stiftes. De første marinerne finner veien ned.</li>
+          <li><span class="yr">1948</span> Kjelleren blir fast tilholdssted. Den oransje M-en tennes.</li>
+          <li><span class="yr">1976</span> Tradisjonene formaliseres — sanger, seremonier, samhold.</li>
+          <li><span class="yr">2025</span> Fortsatt samme reise. Fortsatt samme lys.</li>
+        </ul>`,
+    },
+    faner: {
+      kicker: "Veggen",
+      title: "Fanene",
+      html: `
+        <p>Hvert kull har satt sitt merke på veggen. Fanene henger tett, år på år, som et stille regnskap over alle som har funnet veien ned hit.</p>
+        <p>Noen er brodert for hånd, andre malt i all hast en lørdag kveld — men de henger fortsatt, side om side.</p>`,
+    },
+    dansegulv: {
+      kicker: "Gulvet",
+      title: "Dansegulvet",
+      html: `
+        <ul class="prog">
+          <li><span class="t">19:00</span><span>Dørene åpner. Velkomstdram ved foten av trappa.</span></li>
+          <li><span class="t">20:00</span><span>Tale for de 110 årene.</span></li>
+          <li><span class="t">21:00</span><span>Allsang. Du kan sangene, eller lærer dem i kveld.</span></li>
+          <li><span class="t">22:30</span><span>Anlegget skrus opp.</span></li>
+          <li><span class="t">02:00</span><span>Ingen finner veien hjem. Alle fant veien ned.</span></li>
+        </ul>`,
+    },
+    /* The five topics below aren't surfaced as hotspots right now (the photo
+       carries three dots: neon, faner, dansegulv — see HOTSPOTS above), but
+       are kept here, fully wired, so any of them can come back as a new
+       HOTSPOTS entry later with no other rework. */
     historie: {
       kicker: "Plakatene på veggen",
       title: "Historien",
@@ -196,6 +264,7 @@
   const modalRoot = $("#modalRoot");
   const modalScrim = $("#modalScrim");
   const modalClose = $("#modalClose");
+  const modalEl = $(".modal");
   const mKicker = $("#modalKicker");
   const mTitle = $("#modalTitle");
   const mBody = $("#modalBody");
@@ -220,14 +289,66 @@
     if (lastFocus) lastFocus.focus();
   }
 
-  document.querySelectorAll(".hot").forEach((h) =>
-    h.addEventListener("click", () => openModal(h.dataset.key))
-  );
   modalScrim.addEventListener("click", closeModal);
   modalClose.addEventListener("click", closeModal);
+
+  // Escape closes; Tab/Shift+Tab trap focus inside the open modal instead of
+  // letting keyboard focus escape to the (still-present) page behind it.
   window.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && modalRoot.classList.contains("open")) closeModal();
+    if (!modalRoot.classList.contains("open")) return;
+    if (e.key === "Escape") { closeModal(); return; }
+    if (e.key !== "Tab") return;
+    const focusable = Array.from(
+      modalEl.querySelectorAll('a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])')
+    );
+    if (!focusable.length) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault(); last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault(); first.focus();
+    }
   });
+
+  /* ---- Render the dots (desktop overlay) + the <=768px stacked list from
+     the same HOTSPOTS config, both wired to the same openModal/visited
+     state. See .hotspot-list in styles.css for the mobile breakpoint. ---- */
+  const hotspotsLayer = $("#hotspots");
+  const hotspotList = $("#hotspotList");
+
+  function renderHotspots() {
+    HOTSPOTS.forEach((spot, i) => {
+      const dot = document.createElement("button");
+      dot.type = "button";
+      dot.className = "hot" + (spot.left > 70 ? " hot--flip" : "");
+      dot.style.setProperty("--x", spot.left + "%");
+      dot.style.setProperty("--y", spot.top + "%");
+      dot.style.setProperty("--delay", (i % 3) * 0.9 + "s");
+      dot.dataset.key = spot.modalId;
+      dot.setAttribute("aria-label", spot.label);
+      dot.innerHTML = `<span class="hot-dot"></span><span class="hot-name">${spot.label}</span>`;
+
+      const listItem = document.createElement("li");
+      const listBtn = document.createElement("button");
+      listBtn.type = "button";
+      listBtn.textContent = spot.label;
+      listBtn.setAttribute("aria-label", spot.label);
+      listItem.appendChild(listBtn);
+
+      const open = () => {
+        openModal(spot.modalId);
+        dot.classList.add("visited");
+        listBtn.classList.add("visited");
+      };
+      dot.addEventListener("click", open);
+      listBtn.addEventListener("click", open);
+
+      hotspotsLayer.appendChild(dot);
+      hotspotList.appendChild(listItem);
+    });
+  }
+  renderHotspots();
 
   /* ============================================================
      HOUSE BEAT (WebAudio) — off by default.

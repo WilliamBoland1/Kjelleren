@@ -119,33 +119,16 @@
 
   <!-- The cellar — the elevator doors open on the party -->
   <section class="floor floor--cellar" id="floorCellar">
-    <div class="cellar-img" id="cellarImg"></div>
+    <div class="cellar-img" id="cellarImg" role="img" aria-label="Et fullt dansegulv i Mannhullet-kjelleren, sett mot det oransje neonskiltet som henger over rommet, med fanene fra tidligere kull på veggen til høyre."></div>
 
-    <div class="hotspots" id="hotspots">
-      <button class="hot" style="--x:41%;--y:37%" data-key="historie">
-        <span class="hot-dot"></span><span class="hot-name">Historien</span>
-      </button>
-      <button class="hot" style="--x:16%;--y:80%" data-key="billetter">
-        <span class="hot-dot"></span><span class="hot-name">Baren · Billetter</span>
-      </button>
-      <button class="hot" style="--x:38%;--y:20%" data-key="spilleliste">
-        <span class="hot-dot"></span><span class="hot-name">Anlegget · Spilleliste</span>
-      </button>
-      <button class="hot" style="--x:63%;--y:29%" data-key="program">
-        <span class="hot-dot"></span><span class="hot-name">Tavla · Program</span>
-      </button>
-      <button class="hot" style="--x:13%;--y:41%" data-key="galleri">
-        <span class="hot-dot"></span><span class="hot-name">Bildene · Galleri</span>
-      </button>
-      <button class="hot" style="--x:82%;--y:72%" data-key="effekter">
-        <span class="hot-dot"></span><span class="hot-name">Jakka · Effekter</span>
-      </button>
-      <button class="hot" style="--x:93%;--y:47%" data-key="kontakt">
-        <span class="hot-dot"></span><span class="hot-name">Døra · Kontakt</span>
-      </button>
-    </div>
+    <!-- Hotspot dots are rendered from the HOTSPOTS config array in script.js —
+         nothing is hardcoded here so a new dot only needs one new entry there.
+         .hotspots is the desktop overlay; #hotspotList is the <=768px fallback
+         (see script.js renderHotspots and the .hotspot-list rule in styles.css). -->
+    <div class="hotspots" id="hotspots"></div>
+    <ul class="hotspot-list" id="hotspotList"></ul>
 
-    <div class="cellar-hint" id="cellarHint">Alt her nede er en dør. Trykk deg her inn.</div>
+    <div class="cellar-hint" id="cellarHint"><span>Alt her nede er en dør. Trykk deg her inn.</span></div>
   </section>
 
 </main>
