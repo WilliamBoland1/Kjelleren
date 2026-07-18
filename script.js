@@ -20,11 +20,34 @@
   // smoothstep — eases gently at both ends, so change is slow at the very top
   // and very bottom (a natural hold) and fastest through the middle.
   const smooth = (t) => t * t * (3 - 2 * t);
+  const pad2 = (n) => String(n).padStart(2, "0");
+
+  /* ---------- countdown to the jubilee ---------- */
+  const cd = {
+    days: $("#days"),
+    hours: $("#hours"),
+    minutes: $("#minutes"),
+    seconds: $("#seconds"),
+  };
+
+  function tickCountdown() {
+    const diff = ANNIVERSARY - new Date();
+    if (diff <= 0) {
+      cd.days.textContent = cd.hours.textContent = cd.minutes.textContent = cd.seconds.textContent = "00";
+      return;
+    }
+    const total = Math.floor(diff / 1000);
+    cd.days.textContent = pad2(Math.floor(total / 86400));
+    cd.hours.textContent = pad2(Math.floor((total % 86400) / 3600));
+    cd.minutes.textContent = pad2(Math.floor((total % 3600) / 60));
+    cd.seconds.textContent = pad2(total % 60);
+  }
+  tickCountdown();
+  setInterval(tickCountdown, 1000);
 
   /* ---------- elements ---------- */
   const root = document.documentElement;
   const depthFill = $("#depthFill");
-  const depthMarker = $("#depthMarker");
 
   /* audio state — declared here (ahead of the initial render() call below)
      so updateAudioDepth() can safely read them before the WebAudio section
@@ -32,12 +55,17 @@
   let audio = null;
   let playing = false;
 
-  /* ---------- reveal the hero on load ---------- */
-  window.addEventListener("load", () => {
-    document.querySelectorAll(".reveal").forEach((el, i) => {
-      setTimeout(() => el.classList.add("in"), 180 + i * 160);
-    });
-  });
+  /* --- Featured track (Step 2): no audio file yet — see the FEATURED
+     TRACK section near the bottom for how the volume ramp works. Swap
+     in a licensed file or embed by setting `src` below; everything else
+     is already wired up. --- */
+  const FEATURED_TRACK = {
+    artist: "Kakkmaddafakka",
+    title: "Forever Alone (Live)",
+    src: "", // e.g. "static/audio/forever-alone-live.mp3" — or replace this feature with a licensed embed
+  };
+  const featuredAudio = $("#featuredAudio");
+  if (FEATURED_TRACK.src) featuredAudio.src = FEATURED_TRACK.src;
 
   /* ============================================================
      SCROLL → DEPTH
@@ -59,12 +87,12 @@
 
     root.style.setProperty("--depth", depth.toFixed(4));
     depthFill.style.height = (depth * 100).toFixed(1) + "%";
-    depthMarker.style.top = (depth * 100).toFixed(1) + "%";
 
     // the cellar becomes the menu once you've fully arrived
     document.body.classList.toggle("menu-live", depth >= 0.93);
 
     updateAudioDepth(depth);
+    updateFeaturedTrackVolume(depth);
   }
 
   function onScroll() {
@@ -108,6 +136,11 @@
       title: "Spillelista",
       html: `
         <p>Lyden av kjelleren gjennom 110 år. Fra allsang til det som spilles klokka to.</p>
+        <div class="featured-track">
+          <span class="featured-track-label">Fremhevet låt</span>
+          <span class="featured-track-name">${FEATURED_TRACK.artist} — ${FEATURED_TRACK.title}</span>
+          <span class="featured-track-status">${FEATURED_TRACK.src ? "Spilles nå" : "Lydklipp kommer"}</span>
+        </div>
         <p><a class="btn" href="https://open.spotify.com" target="_blank" rel="noopener">Åpne i Spotify</a></p>
         <p><a class="btn ghost" href="#" onclick="return false">Jubileums­spillelista</a></p>`,
     },
@@ -356,4 +389,20 @@
       if (audio) audio.master.gain.setTargetAtTime(0.0, audio.ctx.currentTime, 0.25);
     }
   });
+
+  /* ============================================================
+     FEATURED TRACK — volume ramp
+     Silent at the top of the page; fades in on the exact same
+     curve as the cellar photo's own reveal (see .cellar-img in
+     styles.css), so the song arrives together with the room
+     rather than on its own separate timeline. Stays completely
+     inert until FEATURED_TRACK.src (declared above) is set.
+     ============================================================ */
+  function updateFeaturedTrackVolume(depth) {
+    if (!FEATURED_TRACK.src) return;
+    const arrival = clamp((depth - 0.74) * 3.85);
+    featuredAudio.volume = arrival * 0.7;
+    if (arrival > 0 && featuredAudio.paused) featuredAudio.play().catch(() => {});
+    if (arrival === 0 && !featuredAudio.paused) featuredAudio.pause();
+  }
 })();

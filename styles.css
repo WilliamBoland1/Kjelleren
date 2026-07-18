@@ -7,151 +7,96 @@
    scroll carries you straight down through the section.
    ============================================================ */
 
-:root {
-  /* Upper world — maritime luxury, museum minimalism */
-  --abyss:      #060b14;
-  --navy:       #0a1322;
-  --navy-2:     #0f1d31;
-  --blue-muted: #38506f;
-  --silver:     #c6d0df;
-  --silver-dim: #74829a;
-  --platinum:   #eef2f8;
-
-  /* Lower world — the cellar, warm and human */
-  --amber:      #ff7a1e;
-  --ember:      #e6521a;
-  --neon:       #ff6a00;
-  --cyan:       #2fc8ff;
-  --wood:       #6b3f22;
-  --concrete:   #0b0a08;
-
-  --serif: "Cormorant Garamond", "Georgia", "Times New Roman", serif;
-  --sans:  "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
-
-  --ease: cubic-bezier(0.22, 1, 0.36, 1);
-
-  /* elevator depth, 0 (ground floor) → 1 (cellar). Written once per frame by script.js;
-     everything below reads it declaratively via calc()/color-mix() — no scene toggles. */
-  --depth: 0;
-}
-
-* { margin: 0; padding: 0; box-sizing: border-box; }
-
-html { scroll-behavior: auto; -webkit-text-size-adjust: 100%; }
-
-body {
-  font-family: var(--sans);
-  background: var(--concrete);
-  color: var(--silver);
-  overflow-x: hidden;
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
-}
-
-body.no-scroll { overflow: hidden; }
+/* Palette, fonts, base reset, the NTH watermark, and the shared header-logo/
+   social-links components all live in background.css, shared with
+   om-jubileet.html and kontakt.html. This file only holds what's specific
+   to the scrolling elevator experience on this page (plus a faithful port
+   of the countdown reference page's hero content, colored with its own
+   --accent/--accent-dim tokens rather than this page's --amber). */
 
 /* ============ Global overlays ============ */
+/* .grain and .vignette now live in background.css — every page shares them. */
 
-/* film grain — thin in daylight, heavier once you're deep in the building */
-.grain {
-  position: fixed; inset: 0;
-  z-index: 90; pointer-events: none;
-  opacity: calc(0.05 + var(--depth) * 0.11);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  mix-blend-mode: overlay;
-}
-
-.vignette {
-  position: fixed; inset: 0; z-index: 80; pointer-events: none;
-  box-shadow: inset 0 0 calc(22vmax + var(--depth) * 8vmax) rgba(0,0,0, calc(0.6 + var(--depth) * 0.25));
-}
-
-/* ============ Topbar ============ */
-.topbar {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 70;
-  display: flex; align-items: flex-start; justify-content: space-between;
-  padding: clamp(18px, 3.5vw, 38px) clamp(20px, 4vw, 48px);
-  /* a permanent, subtle scrim — not a scroll-triggered dimming effect, just enough
-     contrast that the ink swap below never goes illegible mid-transition */
-  background: linear-gradient(to bottom, rgba(0,0,0, calc(0.24 + var(--depth) * 0.34)), transparent);
-  /* ink itself swaps quickly around the one point where the wall crosses mid-grey,
-     rather than fading linearly across the whole descent — that would spend a long
-     stretch of scroll with low-contrast grey ink on a similarly grey wall */
-  color: color-mix(in oklab, #14100c, #fff clamp(0%, calc((var(--depth) - 0.35) * 500%), 100%));
-  text-shadow: 0 2px 14px rgba(0,0,0, calc(0.15 + var(--depth) * 0.35));
-}
-.brand { display: flex; flex-direction: column; gap: 6px; text-decoration: none; color: inherit; }
-.brand-word { font-family: var(--serif); font-size: clamp(24px, 3.2vw, 34px); font-weight: 500; line-height: 1; letter-spacing: 0.01em; }
-.brand-est { font-size: clamp(12px, 1.4vw, 15px); font-weight: 500; letter-spacing: 0.06em; opacity: 0.92; }
-.topbar-right { display: flex; align-items: flex-start; gap: clamp(16px, 3vw, 30px); }
-.jub-logo { display: flex; align-items: center; }
-.jub-logo .brand-mark { height: clamp(38px, 5vw, 52px); width: auto; display: block; }
-
+/* ============ Sound toggle (index-only; header-logo/social-links chrome is in background.css) ============ */
 .sound-toggle {
   display: flex; align-items: center; gap: 9px;
-  background: none; border: none; cursor: pointer; color: inherit;
+  background: none; border: none; cursor: pointer;
+  color: rgba(147, 166, 194, 0.8);
   font-family: var(--sans); font-size: 12px; font-weight: 500; letter-spacing: 0.2em;
-  text-shadow: inherit;
+  transition: color 0.2s ease;
 }
+.sound-toggle:hover, .sound-toggle:focus-visible { color: var(--ink); }
 .sound-bars { display: flex; align-items: flex-end; gap: 2px; height: 13px; }
 .sound-bars i { width: 2px; height: 4px; background: currentColor; opacity: 0.6; }
 .sound-toggle[aria-pressed="true"] .sound-bars i { animation: eq 0.9s ease-in-out infinite; opacity: 1; }
 .sound-bars i:nth-child(2){ animation-delay: 0.15s; } .sound-bars i:nth-child(3){ animation-delay: 0.3s; } .sound-bars i:nth-child(4){ animation-delay: 0.45s; }
 @keyframes eq { 0%,100%{ height: 4px; } 50%{ height: 13px; } }
 
-/* ============ Descent progress — always on screen, not just once you've scrolled ============ */
+/* ============ Descent progress — always on screen, not just once you've scrolled ============
+   A row of labelled floor stops down the left edge, spaced to match how far
+   0 M / -4 M / -8 M / -14 M sit along the descent (--t per stop, 0 → 1).
+   Every stop — including Kjelleren — lights up from --silver-dim to --amber
+   the same way, purely as --depth reaches its own --t; nothing is forced on
+   early, so Kjelleren only goes amber once you've actually arrived. */
 .depth {
-  position: fixed; right: clamp(16px, 4vw, 44px); top: 50%; transform: translateY(-50%);
+  position: fixed; left: clamp(20px, 4vw, 48px); top: 50%; transform: translateY(-50%);
   z-index: 60; display: flex; flex-direction: column; align-items: center; gap: 14px;
-  /* dark ink while the wall behind is still nearly white, flipping quickly to
-     the pale scheme once the wall has actually gone dark — same technique as
-     the topbar, so the gauge is legible for the whole trip, not just the end */
-  --gauge-ink: color-mix(in oklab, #262a30, var(--silver-dim) clamp(0%, calc((var(--depth) - 0.35) * 500%), 100%));
 }
-.depth-track {
-  width: 2px; height: 34vh; position: relative; border-radius: 2px;
-  background: color-mix(in oklab, rgba(30,28,26,0.4), rgba(255,255,255,0.12) clamp(0%, calc((var(--depth) - 0.35) * 500%), 100%));
+.depth-arrow {
+  color: var(--amber); font-size: 13px; line-height: 1;
+  animation: depth-arrow-bob 1.8s ease-in-out infinite;
 }
-.depth-fill { position: absolute; top: 0; left: 0; right: 0; height: 0%; background: linear-gradient(var(--gauge-ink), var(--amber)); border-radius: 2px; }
+@keyframes depth-arrow-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(4px); } }
 
-/* a small arrow riding down the track at the current position — no label,
-   just a marker, pointing the same way you're travelling */
-.depth-marker { position: absolute; left: 50%; top: 0%; width: 0; height: 0; }
-.depth-marker::before {
-  content: ""; position: absolute; left: 0; top: 0; transform: translate(-50%, -50%);
-  width: 0; height: 0;
-  border-left: 5px solid transparent;
-  border-right: 5px solid transparent;
-  border-top: 7px solid var(--amber);
-  filter: drop-shadow(0 0 4px rgba(255,122,30,0.5));
-}
+/* row-reverse puts the line first (flush against the left edge) and the
+   labels second (extending inward), mirroring how the line sat flush
+   against the right edge before */
+.depth-row { display: flex; flex-direction: row-reverse; gap: 16px; }
 
-/* the destination — fixed at the bottom of the track the whole time, not a
-   reveal that only appears once you've arrived */
-.depth-dest {
-  font-size: 9.5px; letter-spacing: 0.3em; text-transform: uppercase;
-  writing-mode: vertical-rl; text-orientation: mixed;
-  color: color-mix(in oklab, var(--gauge-ink), var(--amber) calc(var(--depth) * 100%));
+.depth-line {
+  position: relative; width: 1px; height: 34vh; border-radius: 1px;
+  background: rgba(255, 255, 255, 0.14);
 }
+.depth-fill { position: absolute; top: 0; left: 0; width: 100%; height: 0%; background: var(--amber); border-radius: 1px; }
+
+.depth-stops {
+  list-style: none; height: 34vh; text-align: left;
+  display: flex; flex-direction: column; justify-content: space-between;
+}
+.depth-stop {
+  position: relative; font-family: var(--sans); font-size: 11px; font-weight: 500;
+  letter-spacing: 0.18em; text-transform: uppercase; white-space: nowrap;
+  color: color-mix(in oklab, var(--caption), var(--amber) clamp(0%, calc((var(--depth) - var(--t) + 0.06) * 1600%), 100%));
+  transition: color 0.3s var(--ease);
+}
+.depth-stop::before {
+  content: ""; position: absolute; left: -16px; top: 50%; transform: translateY(-50%);
+  width: 8px; height: 1px; background: currentColor; opacity: 0.7;
+}
+.depth-stop-name { display: block; font-size: 9.5px; opacity: 0.85; margin-top: 2px; letter-spacing: 0.24em; }
+.depth-stop--dest { font-weight: 600; }
 
 /* ============ The building ============ */
-/* One plain gradient painted the full length of the page — daylight into
-   darkness, nothing else. No scenery, no objects to pass — just the wall
-   slowly losing its light, the way a room dims as the sun goes down. */
+/* One plain gradient painted the full length of the page — dark navy into
+   black, nothing else. No scenery, no objects to pass — just the wall
+   slowly losing what little light it had. */
 .building {
   position: relative;
   /* stops are tuned to this page's actual floor heights (atrium 100vh / transition
      260vh / cellar 100vh = 460vh total) so the tone reaches the cellar's own dark
      value by ~78% — exactly where the real photo begins — with no brightness jump
-     at that seam. If the floor heights below change, shift these stops to match. */
+     at that seam. If the floor heights below change, shift these stops to match.
+     Recomputed (linear RGB interpolation from --navy down to --concrete) so the
+     fade stays smooth now that --navy is a proper, brighter navy blue rather
+     than a near-black tone. */
   background: linear-gradient(to bottom,
-    #ffffff 0%,
-    #ffffff 24%,
-    #dcdedf 36%,
-    #a9a9a8 48%,
-    #706864 58%,
-    #3d352f 68%,
-    #17130f 75%,
+    var(--navy) 0%,
+    var(--navy) 24%,
+    #0f1c30 36%,
+    #0e1724 48%,
+    #0d131b 58%,
+    #0c0e11 68%,
+    #0b0b0b 75%,
     var(--concrete) 78%,
     var(--concrete) 100%
   );
@@ -159,35 +104,74 @@ body.no-scroll { overflow: hidden; }
 
 .floor { position: relative; width: 100%; }
 
-/* ---- Floor 1: the atrium, framed like a view through glass ---- */
-.floor--atrium { min-height: 100vh; }
-.hero-bg {
+/* ---- Floor 1: the hero — NTH watermark (shared, background.css) behind a countdown ---- */
+.floor--atrium {
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+}
+
+/* ---- Hero content: a faithful port of the countdown reference page's
+   .content/.eyebrow/.countdown/.unit/.footer, dropped into this floor.
+   Colors use --accent/--accent-dim (the reference's own blue accent) rather
+   than --amber, matching that page exactly. ---- */
+.content {
+  position: relative; z-index: 2; text-align: center;
+  padding: 2rem; padding-bottom: 3.5rem; /* offsets eyebrow height so countdown center = floor center */
+  width: 100%; max-width: 1200px;
+}
+
+/* Same color, font, and size as .footer p below — the two bookend the
+   countdown as one matching pair, rather than the top reading heavier or
+   lighter than the bottom. */
+.eyebrow {
+  position: relative; top: -1rem;
+  font-size: 1rem; font-weight: 500; letter-spacing: 0.45em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 2.5rem;
+}
+
+.countdown {
+  display: flex; align-items: flex-start; justify-content: center;
+  gap: clamp(0.8rem, 4vw, 3.5rem); margin-bottom: 4.5rem;
+}
+.unit { display: flex; flex-direction: column; align-items: center; min-width: clamp(3.5rem, 12vw, 9rem); }
+.unit .value {
+  font-family: var(--display); font-weight: 700; font-size: clamp(3.2rem, 10vw, 8.5rem);
+  line-height: 1; font-variant-numeric: tabular-nums; color: var(--platinum);
+}
+.unit .label { margin-top: 1rem; font-size: 0.78rem; font-weight: 400; letter-spacing: 0.35em; text-transform: uppercase; color: var(--caption); }
+.separator { display: flex; flex-direction: column; gap: 0.9rem; padding-top: clamp(1rem, 3.5vw, 3rem); }
+.separator span { width: 9px; height: 9px; border-radius: 50%; background: var(--accent-dim); }
+
+.footer {
   position: absolute;
-  top: clamp(90px, 13vh, 130px); left: clamp(16px, 3vw, 40px);
-  right: clamp(16px, 3vw, 40px); bottom: clamp(16px, 3vw, 40px);
-  background-image: url("static/Trapp2.jpg");
-  background-size: contain; background-repeat: no-repeat; background-position: center;
+  /* min() keeps the footer pinned just below the watermark on tall viewports,
+     but stops it drifting all the way down to the bottom edge on short/wide
+     ones — 8.5rem keeps a little breathing margin under it. */
+  top: min(calc(50% + clamp(5rem, 20vw, 15rem) + 1.5rem), calc(100% - 8.5rem));
+  left: 0; right: 0; text-align: center; z-index: 2;
 }
-/* a quiet cue, not a button — just a thin travelling line, no label,
-   so it reads as signage rather than UI chrome */
-.scroll-hint {
-  position: absolute; bottom: clamp(34px, 7vh, 64px); left: 50%; transform: translateX(-50%);
-  z-index: 2;
-  display: flex; flex-direction: column; align-items: center;
-  text-decoration: none; color: #fff;
-  animation: hint-breathe 4.5s ease-in-out infinite;
+.footer hr { border: none; border-top: 1px solid rgba(147, 166, 194, 0.25); width: 160px; margin: 0 auto 1.6rem; }
+.footer p { font-size: 1rem; font-weight: 500; letter-spacing: 0.45em; text-transform: uppercase; color: var(--accent); }
+/* .save-date intentionally has no typography of its own — it fully inherits
+   .footer p so "Hold av datoen" reads as the same design system as the
+   eyebrow and the date line, just spaced above it */
+.footer .save-date { margin-bottom: 0.5rem; }
+
+/* .header-nav (Les mer / Kontakt oss / Returnerende) is now a shared
+   component in background.css — om-jubileet.html/kontakt.html/returnerende.html
+   use the same fixed top nav, not just this page. */
+
+/* ---- Entrance fade — same choreography as the countdown reference page ---- */
+.eyebrow, .countdown, .footer, .header-logo, .header-nav, .corner-right {
+  opacity: 0;
+  animation: fadeUp 0.9s ease forwards;
 }
-.scroll-hint-line {
-  position: relative; width: 1px; height: 40px; overflow: hidden;
-  background: rgba(255,255,255,0.22);
-}
-.scroll-hint-line::after {
-  content: ""; position: absolute; inset: 0; top: -60%;
-  background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.9) 50%, transparent);
-  animation: hint-trickle 2.6s ease-in-out infinite;
-}
-@keyframes hint-trickle { 0% { top: -60%; } 100% { top: 100%; } }
-@keyframes hint-breathe { 0%, 100% { opacity: 0.65; } 50% { opacity: 1; } }
+.header-logo, .header-nav, .corner-right { animation-delay: 0.2s; }
+.eyebrow { animation-delay: 0.2s; }
+.countdown { animation-delay: 0.4s; }
+.footer { animation-delay: 0.6s; }
+/* @keyframes fadeUp is shared, defined once in background.css */
 
 /* ---- The descent: an empty stretch of the same wall, just dimming. No
    scenery, no objects — the fade itself is the whole effect. ---- */
@@ -267,10 +251,6 @@ body.menu-live .hotspots { opacity: 1; pointer-events: auto; }
 }
 body.menu-live .cellar-hint { opacity: 1; }
 
-/* ============ Reveal-on-load ============ */
-.reveal { opacity: 0; transform: translateY(26px); transition: opacity 1.1s var(--ease), transform 1.1s var(--ease); }
-.reveal.in { opacity: 1; transform: none; }
-
 /* ============ Modal ============ */
 .modal-root { position: fixed; inset: 0; z-index: 100; display: none; }
 .modal-root.open { display: block; }
@@ -293,20 +273,19 @@ body.menu-live .cellar-hint { opacity: 1; }
 .modal-body { font-weight: 300; font-size: 15px; line-height: 1.75; color: #cbb8a6; }
 .modal-body p { margin-bottom: 16px; }
 .modal-body strong { color: #f3e6d8; font-weight: 500; }
-.modal-body .btn {
-  display: inline-block; margin-top: 8px; padding: 13px 26px;
-  background: var(--amber); color: #150c04; text-decoration: none;
-  font-family: var(--sans); font-size: 12px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase;
-  border-radius: 100px; transition: transform 0.25s var(--ease), background 0.25s;
-}
-.modal-body .btn:hover { transform: translateY(-2px); background: #ff8a34; }
-.modal-body .btn.ghost { background: none; color: var(--amber); border: 1px solid rgba(255,122,30,0.4); }
+/* .btn and .tl (timeline) are shared components from background.css */
 
-/* timeline */
-.tl { list-style: none; border-left: 1px solid rgba(255,150,80,0.24); padding-left: 22px; margin: 8px 0; }
-.tl li { position: relative; margin-bottom: 24px; }
-.tl li::before { content: ""; position: absolute; left: -27px; top: 6px; width: 9px; height: 9px; border-radius: 50%; background: var(--amber); }
-.tl .yr { font-family: var(--serif); font-size: 26px; color: var(--platinum); display: block; margin-bottom: 4px; }
+/* featured track — dashed border marks it clearly as a placeholder until
+   a real file/embed is added (see FEATURED_TRACK in script.js) */
+.featured-track {
+  display: flex; flex-direction: column; gap: 4px;
+  padding: 14px 16px; margin: 14px 0;
+  border: 1px dashed rgba(255,150,80,0.35); border-radius: 8px;
+  background: rgba(255,122,30,0.05);
+}
+.featured-track-label { font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase; color: var(--amber); }
+.featured-track-name { font-family: var(--serif); font-size: 18px; color: var(--platinum); }
+.featured-track-status { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--silver-dim); font-style: italic; }
 
 /* gallery / program / merch */
 .gal { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; }
@@ -319,19 +298,71 @@ body.menu-live .cellar-hint { opacity: 1; }
 .merch .item { border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 16px; }
 .merch .item .nm { color: #f3e6d8; margin-bottom: 4px; }
 .merch .item .pr { font-family: var(--serif); font-size: 22px; color: var(--amber); }
-.contact-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
-.contact-row a { color: var(--amber); text-decoration: none; }
+/* .contact-row is a shared component from background.css */
 
 /* ============ Responsive ============ */
+/* watermark breakpoint is in background.css */
 @media (max-width: 720px) {
   .depth { display: none; }
   .hot-name { font-size: 10px; letter-spacing: 0.1em; }
-  .topbar { padding: 16px 18px; }
-  .brand-word { font-size: 22px; }
+}
+/* .header-nav's own <=720px breakpoint is shared, in background.css */
+
+/* ---- Mobile tweaks (matches the countdown reference page) ---- */
+@media (max-width: 600px) {
+  .separator span { width: 6px; height: 6px; }
+  .separator { gap: 0.6rem; }
+  .countdown { margin-bottom: 3rem; }
+  .footer {
+    padding-bottom: 2.5rem;
+    top: min(calc(50% + clamp(6.5rem, 38vw, 14rem) / 2 + 1.5rem), calc(100% - 11rem));
+  }
+  .eyebrow, .footer p { font-size: 0.73rem; letter-spacing: 0.28em; }
+  .footer .save-date { margin-bottom: 0.35rem; }
 }
 
-@media (max-height: 820px) {
-  .scroll-hint { bottom: 12px; }
+/* ---- Small phones: prevent the countdown row from overflowing ---- */
+@media (max-width: 420px) {
+  .content { padding-left: 1rem; padding-right: 1rem; }
+  .countdown { gap: 0.5rem; }
+  .unit { min-width: 2.4rem; }
+  .unit .value { font-size: 2.2rem; }
+  .unit .label { font-size: 0.6rem; letter-spacing: 0.2em; margin-top: 0.6rem; }
+  .separator { gap: 0.5rem; padding-top: 0.7rem; }
+}
+
+/* ---- Narrowest phones (e.g. iPhone SE, ~320px) ---- */
+@media (max-width: 360px) {
+  .content { padding-left: 0.75rem; padding-right: 0.75rem; }
+  .countdown { gap: 0.3rem; }
+  .unit { min-width: 2rem; }
+  .unit .value { font-size: 1.7rem; }
+  .unit .label { font-size: 0.5rem; letter-spacing: 0.14em; }
+}
+
+/* ---- Landscape phones: shrink vertical rhythm so countdown + footer don't
+   collide when height is short ---- */
+@media (orientation: landscape) and (max-height: 500px) {
+  .content { padding: 1rem 1rem 1.75rem; }
+  .eyebrow { margin-bottom: 1rem; }
+  .countdown { margin-bottom: 1.5rem; gap: clamp(0.5rem, 2vw, 1.5rem); }
+  .unit { min-width: 2.8rem; }
+  .unit .value { font-size: clamp(2rem, 9vh, 4rem); }
+  .unit .label { margin-top: 0.4rem; font-size: 0.62rem; letter-spacing: 0.2em; }
+  .separator { gap: 0.5rem; padding-top: 0.6rem; }
+  .watermark { font-size: clamp(5rem, 34vh, 11rem); }
+  .footer { top: calc(50% + clamp(5rem, 34vh, 11rem) / 2 + 0.8rem); padding-bottom: 1rem; }
+  .footer hr { margin-bottom: 0.8rem; }
+  .eyebrow, .footer p { font-size: 0.8rem; letter-spacing: 0.32em; }
+  .footer .save-date { margin-bottom: 0.4rem; }
+}
+
+/* ---- Shortest phones (e.g. iPhone SE landscape, 320px tall) ---- */
+@media (orientation: landscape) and (max-height: 360px) {
+  .footer { top: calc(50% + clamp(5rem, 34vh, 11rem) / 2 + 0.4rem); padding-bottom: 0.5rem; }
+  .footer hr { margin-bottom: 0.4rem; }
+  .eyebrow, .footer p { font-size: 0.7rem; }
+  .footer .save-date { margin-bottom: 0.3rem; }
 }
 
 /* shorter, faster descent — same continuous building, less scroll distance */
@@ -339,6 +370,9 @@ body.menu-live .cellar-hint { opacity: 1; }
   .floor--atrium { min-height: 50vh; }
   .floor--transition { min-height: 100vh; }
   .floor--cellar { min-height: 50vh; }
-  .hot-dot::after, .scroll-hint, .scroll-hint-line::after, .sound-bars i, .grain { animation: none !important; }
-  .reveal { transition-duration: 0.4s; }
+  .hot-dot::after, .sound-bars i, .grain { animation: none !important; }
+  .eyebrow, .countdown, .footer, .header-logo, .header-nav, .corner-right {
+    animation: none;
+    opacity: 1;
+  }
 }

@@ -10,9 +10,10 @@
 <!-- Elegant display serif + clean grotesk. Falls back to Georgia / system if offline. -->
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300&family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet" />
 
-<link rel="stylesheet" href="styles.css?v=8" />
+<link rel="stylesheet" href="background.css?v=6" />
+<link rel="stylesheet" href="styles.css?v=16" />
 </head>
 <body>
 
@@ -20,31 +21,49 @@
 <div class="grain" aria-hidden="true"></div>
 <div class="vignette" aria-hidden="true"></div>
 
-<!-- ============ Chrome ============ -->
-<header class="topbar" id="topbar">
-  <div class="brand">
-    <span class="brand-word">Mannhullet</span>
-    <span class="brand-est">Est 1917</span>
+<!-- ============ Chrome — same header-logo + social-links every page uses;
+     "Lyd" is index-only, so it rides alongside the socials in one corner
+     group rather than living in background.css's shared component. ============ -->
+<a href="#floorAtrium" class="header-logo-link" aria-label="Til toppen">
+  <img class="header-logo" src="static/logo.png" alt="Mannhullet / NTH 110 år — 1917–2027">
+</a>
+
+<nav class="header-nav" aria-label="Sidenavigasjon">
+  <a href="om-jubileet.html">Les mer</a>
+  <a href="kontakt.html">Kontakt oss</a>
+  <a href="returnerende.html">Returnerende</a>
+</nav>
+
+<div class="corner-right">
+  <button class="sound-toggle" id="soundToggle" aria-pressed="false" aria-label="Skru på lyd">
+    <span class="sound-bars"><i></i><i></i><i></i><i></i></span>
+    <span class="sound-label">Lyd</span>
+  </button>
+  <div class="social-links">
+    <a href="https://www.instagram.com/jub110_mannhullet/" target="_blank" rel="noopener" aria-label="Instagram">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+    </a>
+    <a href="https://www.facebook.com/people/110-%C3%A5rs-jubileum-Mannhullet/61590599620480/" target="_blank" rel="noopener" aria-label="Facebook">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+    </a>
+    <a href="https://www.strava.com/athletes/134381213" target="_blank" rel="noopener" aria-label="Strava">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.172"></path></svg>
+    </a>
   </div>
-  <div class="topbar-right">
-    <!-- Jubileumslogo -->
-    <span class="jub-logo" aria-label="Jubileumslogo">
-      <img class="brand-mark" src="static/logo.png" alt="NTH 110 jubileumslogo" />
-    </span>
-    <button class="sound-toggle" id="soundToggle" aria-pressed="false" aria-label="Skru på lyd">
-      <span class="sound-bars"><i></i><i></i><i></i><i></i></span>
-      <span class="sound-label">Lyd</span>
-    </button>
-  </div>
-</header>
+</div>
 
 <!-- ============ Descent progress — visible the whole way down ============ -->
 <aside class="depth" id="depth" aria-hidden="true">
-  <div class="depth-track">
-    <div class="depth-fill" id="depthFill"></div>
-    <div class="depth-marker" id="depthMarker"></div>
+  <div class="depth-arrow" aria-hidden="true">↓</div>
+  <div class="depth-row">
+    <ol class="depth-stops">
+      <li class="depth-stop" style="--t:0"><span class="depth-stop-num">0 M</span><span class="depth-stop-name">Grunnplan</span></li>
+      <li class="depth-stop" style="--t:0.33"><span class="depth-stop-num">-4 M</span></li>
+      <li class="depth-stop" style="--t:0.66"><span class="depth-stop-num">-8 M</span></li>
+      <li class="depth-stop depth-stop--dest" style="--t:1"><span class="depth-stop-num">-14 M</span><span class="depth-stop-name">Kjelleren</span></li>
+    </ol>
+    <div class="depth-line"><div class="depth-fill" id="depthFill"></div></div>
   </div>
-  <span class="depth-dest">Kjelleren</span>
 </aside>
 
 <!-- ============ The building — one continuous gradient, normal document flow ============
@@ -54,11 +73,39 @@
 
   <!-- Floor 1 — the atrium, seen through the elevator glass -->
   <section class="floor floor--atrium" id="floorAtrium">
-    <div class="hero-bg"></div>
+    <div class="watermark" aria-hidden="true"><span>NTH</span></div>
 
-    <a class="scroll-hint reveal" data-d="1" id="scrollHint" href="#floorCellar" aria-label="Gå ned til kjelleren">
-      <span class="scroll-hint-line" aria-hidden="true"></span>
-    </a>
+    <div class="content">
+      <p class="eyebrow">Mannhullet 110-år</p>
+
+      <div class="countdown" role="timer" aria-live="polite">
+        <div class="unit">
+          <span class="value" id="days">00</span>
+          <span class="label">Dager</span>
+        </div>
+        <div class="separator" aria-hidden="true"><span></span><span></span></div>
+        <div class="unit">
+          <span class="value" id="hours">00</span>
+          <span class="label">Timer</span>
+        </div>
+        <div class="separator" aria-hidden="true"><span></span><span></span></div>
+        <div class="unit">
+          <span class="value" id="minutes">00</span>
+          <span class="label">Minutter</span>
+        </div>
+        <div class="separator" aria-hidden="true"><span></span><span></span></div>
+        <div class="unit">
+          <span class="value" id="seconds">00</span>
+          <span class="label">Sekunder</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <hr />
+      <p class="save-date">Hold av datoen</p>
+      <p class="dates">29. januar – 6. februar · 2027</p>
+    </div>
   </section>
 
   <!-- The descent — no scenery, just the building's own wall gradually losing
@@ -114,6 +161,10 @@
   </div>
 </div>
 
-<script src="script.js?v=8"></script>
+<!-- Featured track (see script.js FEATURED_TRACK) — no source yet; stays
+     silent/inert until a licensed file or embed is added there. -->
+<audio id="featuredAudio" preload="none" loop></audio>
+
+<script src="script.js?v=9"></script>
 </body>
 </html>

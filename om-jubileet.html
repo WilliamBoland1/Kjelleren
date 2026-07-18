@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Om jubileet — Mannhullet 110 år</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@400;500&display=optional" rel="stylesheet">
+  <link rel="stylesheet" href="background.css?v=6">
+
+  <style>
+    /* :root tokens, body base (.simple-page), .wrap base, .page-eyebrow base,
+       .header-nav, .grain/.vignette, :focus-visible and the fadeUp/fadeIn
+       keyframes are all shared in background.css — this page only keeps
+       its own sizing overrides and content-specific rules. */
+    .wrap {
+      max-width: 680px;
+      padding: clamp(3rem, 24vh, 11rem) clamp(1.25rem, 5vw, 2.5rem) clamp(0.5rem, 2vh, 1.5rem);
+    }
+
+    .page-eyebrow { margin-bottom: clamp(0.5rem, 1.5vh, 0.85rem); }
+    .title {
+      font-family: 'Playfair Display', serif;
+      font-weight: 800;
+      font-size: clamp(1.5rem, 4.2vh, 2.6rem);
+      line-height: 1.08; margin-bottom: clamp(1rem, 3.5vh, 2rem); text-align: center;
+    }
+
+    /* placeholder text = clearly "fill in yourselves" */
+    .ph { color: var(--muted); font-style: italic; }
+    /* Body copy stays upright even though it's placeholder text — italics at
+       paragraph length hurt readability; reserve italic for short lines only. */
+    .letter p.ph { font-style: normal; }
+
+    /* ---- Welcome letter ---- */
+    .letter { max-width: 560px; margin: 0 auto; text-align: center; }
+    .letter .salut {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: clamp(1.2rem, 3.2vh, 1.7rem);
+      margin-bottom: clamp(0.6rem, 1.8vh, 1rem);
+    }
+    .letter p { font-size: clamp(0.85rem, 2.1vh, 1.05rem); margin-bottom: clamp(0.55rem, 1.5vh, 0.9rem); }
+    .sign { margin-top: clamp(0.7rem, 1.8vh, 1.2rem); font-family: 'Playfair Display', serif; }
+    .sign .who { font-size: clamp(0.95rem, 2.2vh, 1.2rem); font-weight: 700; }
+    .sign .role { font-size: clamp(0.75rem, 1.6vh, 0.9rem); color: var(--muted); font-style: italic; }
+
+    /* ---- Narrowest phones (e.g. iPhone SE, ~320px): the letter-spaced date
+       line needs ~296px at the base size, which just barely outgrows the
+       narrowest screens and risks wrapping. Shrink it to stay on one line. ---- */
+    @media (max-width: 360px) {
+      .page-eyebrow { font-size: 0.62rem; letter-spacing: 0.26em; }
+    }
+
+    /* ---- Landscape phones: shrink vertical rhythm so the letter fits without
+       relying on the scroll fallback (covers phone landscape heights ~320-430px) ---- */
+    @media (orientation: landscape) and (max-height: 500px) {
+      .wrap {
+        padding-top: clamp(2.5rem, 14vh, 4rem);
+        padding-bottom: 0.5rem;
+      }
+      .watermark { font-size: clamp(5rem, 34vh, 10rem); }
+      .page-eyebrow { margin-bottom: 0.4rem; font-size: 0.64rem; }
+      .title {
+        font-size: clamp(1.3rem, 5vh, 2rem);
+        margin-bottom: 0.6rem;
+      }
+      .letter .salut {
+        font-size: clamp(1rem, 3.6vh, 1.3rem);
+        margin-bottom: 0.4rem;
+      }
+      .letter p {
+        font-size: 0.82rem;
+        margin-bottom: 0.4rem;
+      }
+      .sign { margin-top: 0.5rem; }
+    }
+
+    /* ---- Entrance fade, matching the countdown page (keyframes shared
+       in background.css) ---- */
+    .header-logo, .header-nav, .page-eyebrow, .title, .letter, .social-links {
+      opacity: 0;
+      animation: fadeUp 0.9s ease forwards;
+    }
+    .header-logo, .header-nav { animation-delay: 0.1s; }
+    .social-links { animation-delay: 0.1s; }
+    .page-eyebrow { animation-delay: 0.3s; }
+    .title { animation-delay: 0.45s; }
+    .letter { animation-delay: 0.6s; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .header-logo, .header-nav, .page-eyebrow, .title, .letter, .social-links {
+        animation: none;
+        opacity: 1;
+      }
+    }
+  </style>
+</head>
+<body class="simple-page">
+
+  <div class="grain" aria-hidden="true"></div>
+  <div class="vignette" aria-hidden="true"></div>
+
+  <div class="watermark" aria-hidden="true"><span>NTH</span></div>
+
+  <a href="index.html" class="header-logo-link" aria-label="Til forsiden">
+    <img class="header-logo" src="static/logo.png" alt="Mannhullet / NTH 110 år — 1917–2027">
+  </a>
+
+  <nav class="header-nav" aria-label="Sidenavigasjon">
+    <a href="index.html">Forside</a>
+    <a href="kontakt.html">Kontakt oss</a>
+  </nav>
+
+  <div class="social-links">
+    <a href="https://www.instagram.com/jub110_mannhullet/" target="_blank" rel="noopener" aria-label="Instagram">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+    </a>
+    <a href="https://www.facebook.com/people/110-%C3%A5rs-jubileum-Mannhullet/61590599620480/" target="_blank" rel="noopener" aria-label="Facebook">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+    </a>
+    <a href="https://www.strava.com/athletes/134381213" target="_blank" rel="noopener" aria-label="Strava">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.172"></path></svg>
+    </a>
+  </div>
+
+  <main class="wrap">
+
+    <p class="page-eyebrow">29. januar – 6. februar · 2027</p>
+    <h1 class="title">Mannhullet fyller 110 år</h1>
+
+    <section class="letter">
+      <p class="salut">Ærede Mannhullitter!</p>
+      <p class="ph">
+        [Fyller inn teksten her med en kort hilsen fre Pers hvor han snakker om hvor kult det blir osv.
+        Dette er en placeholder som skal byttes ut med den faktiske teksten.
+        Sikkert fint å få med litt datoer, praktisk info hvor informasjon koemmer, hvilke datoer det gjelder,
+        også hype det opp litt]
+      </p>
+      <div class="sign">
+        <div class="who ph">Von Person</div>
+        <div class="role">Leder av Jubileumskomiteen</div>
+      </div>
+    </section>
+
+  </main>
+
+</body>
+</html>

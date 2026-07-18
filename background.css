@@ -1,0 +1,288 @@
+/* ============================================================
+   MANNHULLET · 110 ÅR — shared chrome
+   Palette, base page background, the NTH watermark, and the
+   corner header (logo + socials) are used identically on every
+   page: index.html, om-jubileet.html, kontakt.html. Anything
+   page-specific (the elevator scroll engine, the modal, each
+   page's own content layout) stays in that page's own stylesheet.
+   ============================================================ */
+
+:root {
+  /* original simple palette — used directly by om-jubileet.html / kontakt.html */
+  --ink:        #eef3fa;
+  --accent:     #5b82c4;
+  --accent-dim: #3d5a8a;
+  --bg-soft:    #091125;
+  --muted:      #93a6c2;
+  --line:       rgba(147, 166, 194, 0.18);
+
+  /* index.html's richer palette (the elevator engine, hotspots, modal) —
+     --navy is a true navy blue (not near-black) so the hero and every
+     page's body background read as navy at a glance, no glow needed */
+  --navy:       #102137;
+  --silver:     #c6d0df;
+  --silver-dim: #74829a;
+  --platinum:   #eef2f8;
+  --amber:      #ff7a1e;
+  --concrete:   #0b0a08;
+  /* secondary/caption tier — countdown unit labels, header nav links, and
+     the depth-gauge labels. 6.5:1 against --navy (#14294a), clears WCAG AA
+     (4.5:1) for their small text sizes with room to spare — used as-is. */
+  --caption:    #9cafcb;
+
+  --serif:   "Cormorant Garamond", "Georgia", "Times New Roman", serif;
+  --sans:    "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --display: "Playfair Display", serif;
+
+  /* the NTH watermark's ink/glow (unrelated to the hero — this is the
+     letterform stroke-blur, see .watermark::before). --wm-ink is lightened
+     ~4-5 percentage points above --navy (was ~3pp) so the letters read as
+     an intentional engraved watermark rather than a barely-visible
+     artifact — still far too dark to compete with --platinum countdown text. */
+  --wm-ink:  #273a58;
+  --wm-glow: rgba(91, 130, 196, 0.45);
+
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* elevator depth, 0 (ground floor) → 1 (cellar). Only index.html's
+     script.js ever writes this; pages without the elevator simply keep
+     the resting value of 0, which every formula below treats as a
+     valid "top of the building" state. */
+  --depth: 0;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: auto; -webkit-text-size-adjust: 100%; }
+html, body { height: 100%; }
+
+body {
+  font-family: var(--sans);
+  color: var(--silver);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  /* flat navy (the same --navy index.html's hero sits on) — index.html's
+     own .building gradient paints over this everywhere it covers; pages
+     without that gradient (om-jubileet, kontakt) show it as-is, so their
+     brightness matches the landing page exactly */
+  background: var(--navy);
+  scrollbar-gutter: stable;
+}
+
+body.no-scroll { overflow: hidden; }
+
+/* ============ Global overlays — shared on every page ============
+   Both read --depth, which defaults to 0 (its resting "ground floor" value)
+   on pages without the elevator script, so they simply render as a fixed,
+   subtle darkening rather than animating. This is what makes index.html's
+   background read as moodier/darker than a flat --navy fill — reusing them
+   here keeps every page's background feeling the same. */
+.grain {
+  position: fixed; inset: 0;
+  z-index: 90; pointer-events: none;
+  opacity: calc(0.05 + var(--depth) * 0.11);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  mix-blend-mode: overlay;
+}
+
+.vignette {
+  position: fixed; inset: 0; z-index: 80; pointer-events: none;
+  box-shadow: inset 0 0 calc(22vmax + var(--depth) * 8vmax) rgba(0,0,0, calc(0.6 + var(--depth) * 0.25));
+}
+
+/* ============ NTH watermark — giant letters behind everything ============ */
+.watermark {
+  position: absolute; inset: 0;
+  display: grid; place-items: center; place-content: center;
+  font-family: var(--display); font-weight: 800;
+  font-size: clamp(8rem, 34vw, 26rem);
+  letter-spacing: 0.12em; line-height: 1;
+  color: var(--wm-ink);
+  user-select: none; pointer-events: none; z-index: 0;
+  /* optical centering: Playfair Display 800's "H" (0.815em) is wider than its
+     "N" (0.727em), so width-based centering sits right of where "T" actually
+     falls — nudge the whole word back to true center */
+  transform: translateX(0.044em);
+}
+.watermark span { grid-area: 1 / 1; margin-right: -0.12em; }
+/* a stroke-only duplicate, blurred — blurring the filled glyphs directly would
+   diffuse color into their own counters and gaps; stroking the outline first
+   means the glow can only bloom outward, never flood the letterforms */
+.watermark::before {
+  content: "NTH";
+  grid-area: 1 / 1;
+  margin-right: -0.12em;
+  color: transparent;
+  -webkit-text-stroke: 0.006em var(--wm-glow);
+  filter: blur(0.014em);
+  z-index: -1;
+}
+@media (max-width: 600px) {
+  .watermark { font-size: clamp(6.5rem, 38vw, 14rem); }
+}
+
+/* ============ Corner brand mark — om-jubileet.html / kontakt.html ============
+   identical position/size on every page; opacity/animation are left to each
+   page since entrance timing differs */
+.header-logo {
+  position: fixed;
+  top: clamp(0.9rem, 3vh, 1.75rem);
+  left: clamp(0.9rem, 3vw, 1.75rem);
+  display: block;
+  width: clamp(52px, 6.6vw, 74px);
+  height: auto;
+  z-index: 3;
+  filter: drop-shadow(0 0 30px rgba(91, 130, 196, 0.18));
+  transition: opacity 0.2s ease;
+}
+/* the logo always links back to the hero/homepage (see each page's <a
+   class="header-logo-link">) — a subtle dim on hover/focus is enough to
+   show it's clickable without fighting the entrance-fade animation */
+.header-logo-link:hover .header-logo,
+.header-logo-link:focus-visible .header-logo {
+  opacity: 0.85;
+}
+
+/* ============ Corner social links — om-jubileet.html / kontakt.html ============
+   identical position/size/color on every page */
+.social-links {
+  position: fixed;
+  top: clamp(0.9rem, 3vh, 1.75rem);
+  right: clamp(0.9rem, 3vw, 1.75rem);
+  z-index: 3;
+  display: flex;
+  gap: clamp(1rem, 2.75vw, 1.5rem);
+}
+.social-links a {
+  position: relative;
+  display: flex;
+  color: rgba(147, 166, 194, 0.8);
+  transition: color 0.2s ease;
+}
+/* invisible expanded hit area: keeps the visible icon small while giving it a
+   >=44x44px tap target, per WCAG target-size guidance */
+.social-links a::before {
+  content: "";
+  position: absolute;
+  inset: -14px;
+}
+.social-links a:hover,
+.social-links a:focus-visible { color: var(--ink); }
+.social-links svg {
+  width: clamp(18px, 2.4vw, 22px);
+  height: clamp(18px, 2.4vw, 22px);
+}
+
+/* ============ index.html-only: "Lyd" rides alongside the socials ============
+   .social-links is normally position:fixed on its own (see above); nested
+   here it's switched to flow in this flex row instead, so the two sit
+   side by side in the same corner rather than fighting over it. */
+.corner-right {
+  position: fixed;
+  top: clamp(0.9rem, 3vh, 1.75rem);
+  right: clamp(0.9rem, 3vw, 1.75rem);
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: clamp(1rem, 2.75vw, 1.5rem);
+}
+.corner-right .social-links { position: static; }
+
+/* ============ Shared top nav — every page's link row ============
+   Fixed at the top, centered between the logo and the corner-right/social
+   group. Spans the full width (left/right: 0) and centers its links with
+   justify-content rather than left:50%+transform:translateX(-50%) — the
+   shared fadeUp entrance animation also animates `transform`, and a CSS
+   animation's transform value fully replaces an element's own static
+   transform rather than combining with it, which would silently cancel a
+   translateX centering once the fade-in finishes. flex-wrap is a safety
+   net for the narrowest phones — it never triggers at normal widths. */
+.header-nav {
+  position: fixed; top: clamp(0.9rem, 3vh, 1.75rem); left: 0; right: 0;
+  z-index: 3; display: flex; flex-wrap: wrap; justify-content: center; align-items: center;
+  gap: clamp(1.5rem, 3vw, 2.5rem); row-gap: 0.5rem;
+}
+.header-nav a {
+  color: var(--caption);
+  font-family: var(--sans); font-size: 12px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase;
+  text-decoration: underline; text-underline-offset: 4px;
+  transition: color 0.2s ease;
+}
+.header-nav a:hover, .header-nav a:focus-visible { color: var(--amber); }
+
+@media (max-width: 720px) {
+  /* own row below the logo/social row, so it can't collide with either
+     regardless of how narrow the viewport gets — 56px clears the logo's
+     larger mobile-clamped height plus a little breathing room */
+  .header-nav { top: calc(clamp(0.9rem, 3vh, 1.75rem) + 56px); gap: 1.2rem; }
+  .header-nav a { font-size: 10px; letter-spacing: 0.1em; }
+}
+
+/* ============ Shared content components (index.html's modal) ============ */
+.tl { list-style: none; border-left: 1px solid rgba(255,150,80,0.24); padding-left: 22px; margin: 8px 0; }
+.tl li { position: relative; margin-bottom: 24px; }
+.tl li::before { content: ""; position: absolute; left: -27px; top: 6px; width: 9px; height: 9px; border-radius: 50%; background: var(--amber); }
+.tl .yr { font-family: var(--serif); font-size: 26px; color: var(--platinum); display: block; margin-bottom: 4px; }
+
+.contact-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
+.contact-row a { color: var(--amber); text-decoration: none; }
+
+.btn {
+  display: inline-block; margin-top: 8px; padding: 13px 26px;
+  background: var(--amber); color: #150c04; text-decoration: none;
+  font-family: var(--sans); font-size: 12px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase;
+  border-radius: 100px; transition: transform 0.25s var(--ease), background 0.25s;
+}
+.btn:hover { transform: translateY(-2px); background: #ff8a34; }
+.btn.ghost { background: none; color: var(--amber); border: 1px solid rgba(255,122,30,0.4); }
+
+/* ============================================================
+   Simple content pages — shared skeleton
+   om-jubileet.html, kontakt.html and returnerende.html all use
+   this same shape: watermark behind, header-logo/header-nav/social-links
+   fixed at the top, and a centered .wrap column below. Each page's own
+   <style> only adds what's specific to its content (headings, body copy,
+   extra elements, and its own max-width/padding on .wrap).
+   ============================================================ */
+.simple-page {
+  line-height: 1.5;
+  position: relative;
+  overflow-x: hidden;
+  overflow-y: auto;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+.wrap {
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.page-eyebrow {
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--accent);
+  text-align: center;
+}
+
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+

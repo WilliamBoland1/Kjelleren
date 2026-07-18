@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Returnerende — Mannhullet 110 år</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@400;500&display=optional" rel="stylesheet">
+  <link rel="stylesheet" href="background.css?v=6">
+
+  <style>
+    /* :root tokens, body base (.simple-page), .wrap base, .page-eyebrow base,
+       .header-nav, .grain/.vignette, :focus-visible and the fadeUp/fadeIn
+       keyframes are all shared in background.css — this page only keeps
+       its own sizing overrides and content-specific rules. */
+    .wrap {
+      max-width: 560px;
+      padding: clamp(3rem, 26vh, 11rem) clamp(1.25rem, 5vw, 2.5rem) clamp(0.5rem, 2vh, 1.5rem);
+      text-align: center;
+    }
+
+    .page-eyebrow { margin-bottom: clamp(0.6rem, 1.8vh, 1rem); }
+
+    .title {
+      font-family: 'Playfair Display', serif;
+      font-weight: 800;
+      font-size: clamp(1.6rem, 4.6vh, 2.7rem);
+      line-height: 1.12;
+      margin-bottom: clamp(1rem, 3vh, 1.75rem);
+    }
+    .message {
+      font-size: clamp(0.88rem, 2.2vh, 1.08rem);
+      color: #c3d0e2;
+      max-width: 460px;
+      margin: 0 auto clamp(1.75rem, 5vh, 2.75rem);
+    }
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1rem;
+    }
+
+    @media (orientation: landscape) and (max-height: 500px) {
+      .wrap { padding-top: clamp(2.5rem, 14vh, 4rem); padding-bottom: 0.5rem; }
+      .watermark { font-size: clamp(5rem, 34vh, 10rem); }
+      .page-eyebrow { margin-bottom: 0.4rem; font-size: 0.64rem; }
+      .title { font-size: clamp(1.3rem, 4.6vh, 1.9rem); margin-bottom: 0.7rem; }
+      .message { margin-bottom: 1rem; }
+    }
+
+    /* ---- Entrance fade, matching the countdown page (keyframes shared
+       in background.css) ---- */
+    .header-logo, .header-nav, .page-eyebrow, .title, .message, .cta-row, .social-links {
+      opacity: 0;
+      animation: fadeUp 0.9s ease forwards;
+    }
+    .header-logo, .header-nav { animation-delay: 0.1s; }
+    .social-links { animation-delay: 0.1s; }
+    .page-eyebrow { animation-delay: 0.3s; }
+    .title { animation-delay: 0.45s; }
+    .message { animation-delay: 0.6s; }
+    .cta-row { animation-delay: 0.75s; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .header-logo, .header-nav, .page-eyebrow, .title, .message, .cta-row, .social-links {
+        animation: none;
+        opacity: 1;
+      }
+    }
+  </style>
+</head>
+<body class="simple-page">
+
+  <div class="grain" aria-hidden="true"></div>
+  <div class="vignette" aria-hidden="true"></div>
+
+  <div class="watermark" aria-hidden="true"><span>NTH</span></div>
+
+  <a href="index.html" class="header-logo-link" aria-label="Til forsiden">
+    <img class="header-logo" src="static/logo.png" alt="Mannhullet / NTH 110 år — 1917–2027">
+  </a>
+
+  <nav class="header-nav" aria-label="Sidenavigasjon">
+    <a href="index.html">Forside</a>
+    <a href="om-jubileet.html">Om jubileet</a>
+    <a href="kontakt.html">Kontakt oss</a>
+  </nav>
+
+  <div class="social-links">
+    <a href="https://www.instagram.com/jub110_mannhullet/" target="_blank" rel="noopener" aria-label="Instagram">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+    </a>
+    <a href="https://www.facebook.com/people/110-%C3%A5rs-jubileum-Mannhullet/61590599620480/" target="_blank" rel="noopener" aria-label="Facebook">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+    </a>
+    <a href="https://www.strava.com/athletes/134381213" target="_blank" rel="noopener" aria-label="Strava">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.172"></path></svg>
+    </a>
+  </div>
+
+  <main class="wrap">
+    <p class="page-eyebrow">110 år · 2027</p>
+    <h1 class="title">Mer informasjon kommer snart</h1>
+    <p class="message">Vi finpusser på billetter, program og alt det andre du lurer på. Følg oss i mellomtiden, så er du sikret å få det med deg først.</p>
+    <div class="cta-row">
+      <a class="btn" href="https://www.instagram.com/jub110_mannhullet/" target="_blank" rel="noopener">Følg på Instagram</a>
+      <a class="btn ghost" href="https://www.facebook.com/people/110-%C3%A5rs-jubileum-Mannhullet/61590599620480/" target="_blank" rel="noopener">Følg på Facebook</a>
+    </div>
+  </main>
+
+</body>
+</html>
