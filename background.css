@@ -42,6 +42,15 @@
   --wm-ink:  #273a58;
   --wm-glow: rgba(91, 130, 196, 0.45);
 
+  /* single source for the "eyebrow" typography — used by .page-eyebrow AND
+     .date-footer p (background.css) so the two always scale identically to
+     each other, and identically to the hero's own .eyebrow/.footer p
+     (styles.css, fixed 1rem/0.45em — the clamp here caps out at that same
+     value on desktop, just easing down for narrow phones instead of
+     overflowing). Change it here once rather than in each component. */
+  --eyebrow-size: clamp(0.68rem, 2.4vw, 1rem);
+  --eyebrow-tracking: clamp(0.28em, 1.4vw, 0.45em);
+
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
 
   /* elevator depth, 0 (ground floor) → 1 (cellar). Only index.html's
@@ -213,6 +222,9 @@ body.no-scroll { overflow: hidden; }
   transition: color 0.2s ease;
 }
 .header-nav a:hover, .header-nav a:focus-visible { color: var(--amber); }
+/* current-page marker used to live here as an orange override; the
+   .section-rail below now owns that job, so every link in this row reads
+   the same regardless of which page you're on. */
 
 @media (max-width: 720px) {
   /* own row below the logo/social row, so it can't collide with either
@@ -220,6 +232,74 @@ body.no-scroll { overflow: hidden; }
      larger mobile-clamped height plus a little breathing room */
   .header-nav { top: calc(clamp(0.9rem, 3vh, 1.75rem) + 56px); gap: 1.2rem; }
   .header-nav a { font-size: 10px; letter-spacing: 0.1em; }
+}
+
+/* ============ Section rail — om-jubileet.html / kontakt.html /
+   returnerende.html only. A quiet vertical "you are here", styled after
+   index.html's .depth stops (see styles.css) but static rather than
+   scroll-driven: no fill/progress, just the current page lit amber and
+   the rest dimmed. Same 34vh line height as .depth on index.html, so the
+   two read as the same component. Only shown once there's genuinely free
+   margin beside the centered .wrap column to sit in — kontakt.html's .wrap
+   is the widest at 860px, so 1280px leaves a comfortable ~210px either
+   side, more than this rail's own footprint, with room to spare on the
+   narrower pages too. Hidden below that rather than repositioned, same
+   as .depth on index.html, since there's no good spot for it once the
+   .wrap column itself starts to fill the viewport. */
+.section-rail {
+  display: none;
+  position: fixed; left: clamp(20px, 4vw, 48px); top: 50%; transform: translateY(-50%);
+  z-index: 5;
+}
+.section-rail-row { display: flex; flex-direction: row-reverse; align-items: center; gap: 16px; }
+/* the line itself now reads as orange (dim base tone), with a brighter
+   glowing segment marking which of the four stops is the current page —
+   position set per page via [data-current] on the <nav>, since there's no
+   scroll position to derive it from the way .depth-fill does on index.html */
+.section-rail-line {
+  position: relative;
+  width: 1px; height: 34vh; border-radius: 1px;
+  background: rgba(255, 138, 61, 0.22);
+}
+/* top is set per page below as an absolute distance from the line's own
+   top/bottom, not a %+translate(-50%) — a % position combined with a
+   centering transform lets the segment overshoot the line at the very top
+   or bottom stop, quietly shortening or lengthening how much base line is
+   left showing above/below it and making the bar read as a different
+   length page to page. Anchoring it inside the line's own bounds instead
+   keeps the full 34vh line visible on every page. Four stops (Hjem / Om
+   jubileet / Kontakt oss / Returnerende) space-between evenly at 0%, 33.3%,
+   66.7% and 100% of the line, so each amber segment centers on its own stop. */
+.section-rail-line::after {
+  content: "";
+  position: absolute; left: 50%; transform: translateX(-50%);
+  width: 3px; height: 26px; border-radius: 2px;
+  background: var(--amber);
+  box-shadow: 0 0 10px 1px rgba(255, 122, 30, 0.55);
+}
+.section-rail[data-current="om"] .section-rail-line::after { top: calc(33.333% - 13px); }
+.section-rail[data-current="kontakt"] .section-rail-line::after { top: calc(66.667% - 13px); }
+.section-rail[data-current="retur"] .section-rail-line::after { top: calc(100% - 26px); }
+.section-rail-stops {
+  list-style: none; height: 34vh; text-align: left;
+  display: flex; flex-direction: column; justify-content: space-between;
+}
+.section-rail-link {
+  position: relative; display: block;
+  font-family: var(--sans); font-size: 11px; font-weight: 500;
+  letter-spacing: 0.18em; text-transform: uppercase; white-space: nowrap;
+  color: var(--caption); opacity: 0.6;
+  transition: color 0.2s ease, opacity 0.2s ease;
+}
+.section-rail-link::before {
+  content: ""; position: absolute; left: -16px; top: 50%; transform: translateY(-50%);
+  width: 8px; height: 1px; background: currentColor; opacity: 0.7;
+}
+.section-rail-link:hover, .section-rail-link:focus-visible { color: var(--amber); opacity: 1; }
+.section-rail-link[aria-current="page"] { color: var(--amber); opacity: 1; font-weight: 600; }
+
+@media (min-width: 1280px) {
+  .section-rail { display: block; }
 }
 
 /* ============ Shared content components (index.html's modal) ============ */
@@ -232,7 +312,7 @@ body.no-scroll { overflow: hidden; }
 .contact-row a { color: var(--amber); text-decoration: none; }
 
 .btn {
-  display: inline-block; margin-top: 8px; padding: 13px 26px;
+  display: inline-block; margin-top: 25px; padding: 13px 26px;
   background: var(--amber); color: #150c04; text-decoration: none;
   font-family: var(--sans); font-size: 12px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase;
   border-radius: 100px; transition: transform 0.25s var(--ease), background 0.25s;
@@ -247,7 +327,12 @@ body.no-scroll { overflow: hidden; }
    fixed at the top, and a centered .wrap column below. Each page's own
    <style> only adds what's specific to its content (headings, body copy,
    extra elements, and its own max-width/padding on .wrap).
-   ============================================================ */
+
+   The centering itself is a deliberate port of index.html's own
+   .floor--atrium (see styles.css) — a fixed 100dvh box with its content
+   vertically centered rather than pinned to the top, so these pages read
+   as the same "hero" as the countdown does, just with their own content
+   standing in its place. */
 .simple-page {
   line-height: 1.5;
   position: relative;
@@ -266,17 +351,74 @@ body.no-scroll { overflow: hidden; }
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
 }
 
+/* wraps everything except .date-footer, so the footer below can sit at a
+   fixed distance from the bottom on every page instead of drifting with
+   however tall that page's own content happens to be (a 3-card contact
+   grid vs. a single short paragraph). min-height:0 lets this flex item
+   shrink below its content's intrinsic height so "safe center" can still
+   center that content within whatever space is actually left above the
+   footer, rather than forcing .wrap itself to grow. */
+.page-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: safe center;
+}
+
+/* uses --eyebrow-size/--eyebrow-tracking (defined once in :root above) so
+   this always reads as the same design element as the hero's own .eyebrow
+   (styles.css) and as .date-footer p below — never three slightly-different
+   copies. Sits below the page's heading now (each page's own markup places
+   it right after the h1) — margin-top left small/plain here since spacing
+   is tuned per page. */
 .page-eyebrow {
-  font-size: 0.72rem;
+  margin-top: 0.6rem;
+  font-size: var(--eyebrow-size);
   font-weight: 500;
-  letter-spacing: 0.32em;
+  letter-spacing: var(--eyebrow-tracking);
   text-transform: uppercase;
   color: var(--accent);
   text-align: center;
 }
+
+/* ============ Shared page heading — om-jubileet.html / kontakt.html /
+   returnerende.html's big h1. Font-family/weight are guaranteed identical
+   here rather than three pages each hardcoding the same literal font name;
+   size/line-height/margin stay page-specific (each page's own .title /
+   .welcome h1 rule), since they're tuned to that page's content. */
+.page-title {
+  font-family: var(--display);
+  font-weight: 800;
+}
+
+/* ============ Shared "hold av datoen" closer — om-jubileet.html /
+   kontakt.html / returnerende.html ============
+   Same hairline + letterspaced date treatment as index.html's own
+   .floor--atrium .footer (see styles.css), ported here for the pages that
+   don't have that hero layout to sit inside — and sharing --eyebrow-size/
+   --eyebrow-tracking with .page-eyebrow above so the two bookend the page
+   as a matched pair, exactly like the hero's own eyebrow/footer do. */
+.date-footer {
+  margin-top: clamp(2rem, 6vh, 4rem);
+  text-align: center;
+}
+.date-footer hr {
+  border: none;
+  border-top: 1px solid rgba(147, 166, 194, 0.25);
+  width: 160px;
+  margin: 0 auto clamp(1rem, 2.5vh, 1.6rem);
+}
+.date-footer p {
+  font-size: var(--eyebrow-size);
+  font-weight: 500;
+  letter-spacing: var(--eyebrow-tracking);
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.date-footer .save-date { margin-bottom: 0.5rem; }
 
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
 

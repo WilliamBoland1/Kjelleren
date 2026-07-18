@@ -7,8 +7,10 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@400;500&display=optional" rel="stylesheet">
-  <link rel="stylesheet" href="background.css?v=6">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300&family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="background.css?v=8">
+  <meta name="description" content="Mer informasjon om Mannhullet 110 år kommer snart.">
+  <meta name="theme-color" content="#060b14">
 
   <style>
     /* :root tokens, body base (.simple-page), .wrap base, .page-eyebrow base,
@@ -17,15 +19,16 @@
        its own sizing overrides and content-specific rules. */
     .wrap {
       max-width: 560px;
-      padding: clamp(3rem, 26vh, 11rem) clamp(1.25rem, 5vw, 2.5rem) clamp(0.5rem, 2vh, 1.5rem);
+      /* modest, roughly-symmetric padding rather than a big top skew — now
+         that .wrap centers vertically (background.css), this only needs to
+         guarantee clearance under the fixed header on short viewports, not
+         do the positioning itself. Matches the hero's own centered-content
+         feel instead of pinning everything to the top. */
+      padding: clamp(2rem, 10vh, 4rem) clamp(1.25rem, 5vw, 2.5rem) clamp(1rem, 4vh, 2rem);
       text-align: center;
     }
 
-    .page-eyebrow { margin-bottom: clamp(0.6rem, 1.8vh, 1rem); }
-
     .title {
-      font-family: 'Playfair Display', serif;
-      font-weight: 800;
       font-size: clamp(1.6rem, 4.6vh, 2.7rem);
       line-height: 1.12;
       margin-bottom: clamp(1rem, 3vh, 1.75rem);
@@ -53,19 +56,20 @@
 
     /* ---- Entrance fade, matching the countdown page (keyframes shared
        in background.css) ---- */
-    .header-logo, .header-nav, .page-eyebrow, .title, .message, .cta-row, .social-links {
+    .header-logo, .header-nav, .section-rail, .page-eyebrow, .title, .message, .cta-row, .date-footer, .social-links {
       opacity: 0;
       animation: fadeUp 0.9s ease forwards;
     }
-    .header-logo, .header-nav { animation-delay: 0.1s; }
+    .header-logo, .header-nav, .section-rail { animation-delay: 0.1s; }
     .social-links { animation-delay: 0.1s; }
     .page-eyebrow { animation-delay: 0.3s; }
     .title { animation-delay: 0.45s; }
     .message { animation-delay: 0.6s; }
     .cta-row { animation-delay: 0.75s; }
+    .date-footer { animation-delay: 0.9s; }
 
     @media (prefers-reduced-motion: reduce) {
-      .header-logo, .header-nav, .page-eyebrow, .title, .message, .cta-row, .social-links {
+      .header-logo, .header-nav, .section-rail, .page-eyebrow, .title, .message, .cta-row, .date-footer, .social-links {
         animation: none;
         opacity: 1;
       }
@@ -84,9 +88,22 @@
   </a>
 
   <nav class="header-nav" aria-label="Sidenavigasjon">
-    <a href="index.html">Forside</a>
-    <a href="om-jubileet.html">Om jubileet</a>
+    <a href="index.html">Hjem</a>
+    <a href="om-jubileet.html">Les mer</a>
     <a href="kontakt.html">Kontakt oss</a>
+    <a href="returnerende.html" aria-current="page">Returnerende</a>
+  </nav>
+
+  <nav class="section-rail" aria-label="Andre sider" data-current="retur">
+    <div class="section-rail-row">
+      <ol class="section-rail-stops">
+        <li><a href="index.html" class="section-rail-link">Hjem</a></li>
+        <li><a href="om-jubileet.html" class="section-rail-link">Om jubileet</a></li>
+        <li><a href="kontakt.html" class="section-rail-link">Kontakt oss</a></li>
+        <li><a href="returnerende.html" class="section-rail-link" aria-current="page">Returnerende</a></li>
+      </ol>
+      <div class="section-rail-line"></div>
+    </div>
   </nav>
 
   <div class="social-links">
@@ -102,12 +119,20 @@
   </div>
 
   <main class="wrap">
-    <p class="page-eyebrow">110 år · 2027</p>
-    <h1 class="title">Mer informasjon kommer snart</h1>
-    <p class="message">Vi finpusser på billetter, program og alt det andre du lurer på. Følg oss i mellomtiden, så er du sikret å få det med deg først.</p>
-    <div class="cta-row">
-      <a class="btn" href="https://www.instagram.com/jub110_mannhullet/" target="_blank" rel="noopener">Følg på Instagram</a>
-      <a class="btn ghost" href="https://www.facebook.com/people/110-%C3%A5rs-jubileum-Mannhullet/61590599620480/" target="_blank" rel="noopener">Følg på Facebook</a>
+    <div class="page-body">
+      <h1 class="title page-title">Mer informasjon kommer</h1>
+      <p class="page-eyebrow">110 år · 2027</p>
+      <p class="message">Vi finpusser på billetter, program og alt det andre du lurer på. Følg oss i mellomtiden, så er du sikret å få det med deg først.</p>
+      <div class="cta-row">
+        <a class="btn" href="https://www.instagram.com/jub110_mannhullet/" target="_blank" rel="noopener">Følg på Instagram</a>
+        <a class="btn ghost" href="https://www.facebook.com/people/110-%C3%A5rs-jubileum-Mannhullet/61590599620480/" target="_blank" rel="noopener">Følg på Facebook</a>
+      </div>
+    </div>
+
+    <div class="date-footer">
+      <hr />
+      <p class="save-date">Hold av datoen</p>
+      <p class="dates">29. januar – 6. februar · 2027</p>
     </div>
   </main>
 

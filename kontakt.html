@@ -7,8 +7,10 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@400;500&display=optional" rel="stylesheet">
-  <link rel="stylesheet" href="background.css?v=6">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300&family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="background.css?v=8">
+  <meta name="description" content="Kontaktinformasjon til jubileumskomiteen for Mannhullet 110 år.">
+  <meta name="theme-color" content="#060b14">
 
   <style>
     /* :root tokens, body base (.simple-page), .wrap base, .page-eyebrow base,
@@ -17,18 +19,22 @@
        its own sizing overrides and content-specific rules. */
     .wrap {
       max-width: 860px;
-      padding: clamp(3rem, 24vh, 10.5rem) clamp(1.5rem, 6vw, 2rem) clamp(0.5rem, 2vh, 1.5rem);
+      /* modest, roughly-symmetric padding rather than a big top skew — now
+         that .wrap centers vertically (background.css), this only needs to
+         guarantee clearance under the fixed header on short viewports, not
+         do the positioning itself. Matches the hero's own centered-content
+         feel instead of pinning everything to the top. */
+      padding: clamp(2rem, 10vh, 4rem) clamp(1.5rem, 6vw, 2rem) clamp(1rem, 4vh, 2rem);
     }
 
+    .ph { color: var(--muted); font-style: italic; }
+
     .welcome { text-align: center; margin-bottom: clamp(0.8rem, 2.5vh, 1.5rem); }
-    .page-eyebrow { margin-bottom: clamp(0.6rem, 1.6vh, 1rem); }
     .welcome h1 {
-      font-family: 'Playfair Display', serif;
-      font-weight: 800;
       font-size: clamp(1.7rem, 5vh, 3rem);
       line-height: 1.08; margin-bottom: clamp(0.5rem, 1.5vh, 0.9rem);
     }
-    .welcome p {
+    .welcome p:not(.page-eyebrow) {
       max-width: 500px; margin: 0 auto;
       font-size: clamp(0.88rem, 2.2vh, 1.1rem);
       color: #c3d0e2;
@@ -40,54 +46,79 @@
       gap: clamp(0.6rem, 2vw, 1.1rem);
     }
     .person {
+      position: relative;
+      display: block;
       background: var(--bg-soft);
       border: 1px solid var(--line);
       border-radius: 18px;
       padding: clamp(0.9rem, 3vh, 2rem) clamp(0.7rem, 2vw, 1.5rem) clamp(0.8rem, 2.5vh, 1.8rem);
       text-align: center;
-      transition: border-color 0.2s ease, transform 0.15s ease;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color 0.15s ease-out, transform 0.15s ease-out, box-shadow 0.15s ease-out;
     }
-    .person:hover { border-color: var(--accent-dim); transform: translateY(-3px); }
+    /* whole card is the link now — border + lift + glow read as one clear
+       "this is clickable" state, orange being the site's one interactive colour */
+    .person:hover, .person:focus-visible {
+      border-color: var(--amber);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 28px -14px rgba(255, 122, 30, 0.4);
+    }
+    .person:focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; }
 
-    /* Avatar: to use a real photo, add  style="background-image:url('bilde.jpg')"
-       to .avatar and delete the "?" inside it. */
-    .avatar {
+    .avatar-frame {
+      display: block;
       width: clamp(46px, 10vh, 92px); height: clamp(46px, 10vh, 92px);
       margin: 0 auto clamp(0.5rem, 1.6vh, 1.1rem);
       border-radius: 50%;
-      background-color: #16223a;
-      background-size: cover; background-position: center;
-      border: 1px solid var(--accent-dim);
-      display: flex; align-items: center; justify-content: center;
-      font-family: 'Playfair Display', serif;
-      font-weight: 700; font-size: 1.9rem; color: var(--accent);
       overflow: hidden;
+      background-color: #16223a;
+      border: 1px solid var(--accent-dim);
+      transition: border-color 0.15s ease-out;
     }
+    .person:hover .avatar-frame, .person:focus-visible .avatar-frame { border-color: var(--amber); }
+    .avatar-frame img {
+      display: block;
+      width: 100%; height: 100%;
+      object-fit: cover;
+    }
+
     .person .role {
+      display: block;
       font-size: clamp(0.56rem, 1.3vh, 0.68rem); letter-spacing: 0.14em; text-transform: uppercase;
       /* Lighter than --accent: against the --bg-soft card (not the page background),
          --accent itself only clears WCAG AA by a hair (~4.9:1) — this gives headroom. */
       color: #7fa0d9; margin-bottom: clamp(0.3rem, 1vh, 0.5rem);
     }
-    .person h3 {
-      font-family: 'Playfair Display', serif;
+    .person .name {
+      display: block;
+      font-family: var(--display);
       font-weight: 700; font-size: clamp(0.95rem, 2.4vh, 1.3rem); margin-bottom: clamp(0.4rem, 1.2vh, 0.9rem);
+      color: var(--ink);
     }
-    .person a.mail {
+    .person .mail {
       position: relative;
       display: inline-block;
-      color: var(--ink); text-decoration: none; font-size: clamp(0.68rem, 1.6vh, 0.9rem);
-      border-bottom: 1px solid var(--accent-dim); padding-bottom: 2px;
-      transition: border-color 0.2s ease; word-break: break-word;
+      color: var(--ink); font-size: clamp(0.68rem, 1.6vh, 0.9rem);
+      padding-bottom: 3px; word-break: break-word;
+      transition: color 0.15s ease-out;
     }
-    /* Invisible expanded hit area, so the tap target reaches >=44x44px without
-       moving the visible underline away from the text. */
-    .person a.mail::before {
+    /* underline sweeps in on hover/focus rather than sitting there permanently —
+       the same orange as everything else that's interactive on this page */
+    .person .mail::after {
       content: "";
-      position: absolute;
-      inset: -15px;
+      position: absolute; left: 0; bottom: 0;
+      width: 0; height: 1px;
+      background: var(--amber);
+      transition: width 0.15s ease-out;
     }
-    .person a.mail:hover { border-color: var(--accent); }
+    .person:hover .mail, .person:focus-visible .mail { color: var(--amber); }
+    .person:hover .mail::after, .person:focus-visible .mail::after { width: 100%; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .person { transition: border-color 0.15s ease-out, color 0.15s ease-out; }
+      .person:hover, .person:focus-visible { transform: none; box-shadow: none; }
+    }
 
     @media (max-width: 480px) {
       .people {
@@ -114,29 +145,32 @@
       .welcome p { font-size: 0.8rem; }
       .people { gap: 0.5rem; }
       .person { padding: 0.6rem 0.5rem 0.7rem; }
-      .avatar {
+      .avatar-frame {
         width: clamp(34px, 8vh, 52px);
         height: clamp(34px, 8vh, 52px);
         margin-bottom: 0.4rem;
       }
       .person .role { margin-bottom: 0.2rem; }
-      .person h3 { font-size: 0.85rem; margin-bottom: 0.3rem; }
-      .person a.mail { font-size: 0.68rem; }
+      .person .name { font-size: 0.85rem; margin-bottom: 0.3rem; }
+      .person .mail { font-size: 0.68rem; }
+      .date-footer { margin-top: 1rem; }
+      .date-footer hr { margin-bottom: 0.6rem; }
     }
 
     /* ---- Entrance fade, matching the countdown page (keyframes shared
        in background.css) ---- */
-    .header-logo, .header-nav, .welcome, .people, .social-links {
+    .header-logo, .header-nav, .section-rail, .welcome, .people, .date-footer, .social-links {
       opacity: 0;
       animation: fadeUp 0.9s ease forwards;
     }
-    .header-logo, .header-nav { animation-delay: 0.1s; }
+    .header-logo, .header-nav, .section-rail { animation-delay: 0.1s; }
     .social-links { animation-delay: 0.1s; }
     .welcome { animation-delay: 0.3s; }
     .people { animation-delay: 0.55s; }
+    .date-footer { animation-delay: 0.75s; }
 
     @media (prefers-reduced-motion: reduce) {
-      .header-logo, .header-nav, .welcome, .people, .social-links {
+      .header-logo, .header-nav, .section-rail, .welcome, .people, .date-footer, .social-links {
         animation: none;
         opacity: 1;
       }
@@ -155,8 +189,22 @@
   </a>
 
   <nav class="header-nav" aria-label="Sidenavigasjon">
-    <a href="index.html">Forside</a>
+    <a href="index.html">Hjem</a>
     <a href="om-jubileet.html">Les mer</a>
+    <a href="kontakt.html" aria-current="page">Kontakt oss</a>
+    <a href="returnerende.html">Returnerende</a>
+  </nav>
+
+  <nav class="section-rail" aria-label="Andre sider" data-current="kontakt">
+    <div class="section-rail-row">
+      <ol class="section-rail-stops">
+        <li><a href="index.html" class="section-rail-link">Hjem</a></li>
+        <li><a href="om-jubileet.html" class="section-rail-link">Om jubileet</a></li>
+        <li><a href="kontakt.html" class="section-rail-link" aria-current="page">Kontakt oss</a></li>
+        <li><a href="returnerende.html" class="section-rail-link">Returnerende</a></li>
+      </ol>
+      <div class="section-rail-line"></div>
+    </div>
   </nav>
 
   <div class="social-links">
@@ -173,36 +221,44 @@
 
   <main class="wrap">
 
-    <header class="welcome">
-      <p class="page-eyebrow">Kontakt oss</p>
-      <h1>Lurer på Jub? Spons? Hva som skjer?</h1>
-      <p>Eller du kanskje bare trenger noen å snakke med, kontakt oss!</p>
-    </header>
+    <div class="page-body">
+      <header class="welcome">
+        <h1 class="page-title">Spørsmål om Jub? Spons? Hva som skjer?</h1>
+        <p class="page-eyebrow">Trenger bare noen å snakke med? kontakt oss!</p>
+      </header>
 
-    <section class="people" aria-label="Kontaktpersoner">
+      <section class="people" aria-label="Kontaktpersoner">
 
-      <div class="person">
-        <div class="avatar" style="background-image:url('static/bilde (1).jpg')" aria-hidden="true"></div>
-        <div class="role">Sjef</div>
-        <h3>Fredrik Von Person</h3>
-        <a class="mail" href="mailto:jubkom-leder@mannhullet.no">jubkom-leder@mannhullet.no</a>
-      </div>
+        <a class="person" href="mailto:jubkom-leder@mannhullet.no" aria-label="Kontakt Fredrik Von Person, Sjef">
+          <span class="avatar-frame"><img src="static/bilde (1).jpg" alt="" style="object-position: 50% 25%;"></span>
+          <span class="role">Sjef</span>
+          <span class="name">Fredrik Von Person</span>
+          <span class="mail">jubkom-leder@mannhullet.no</span>
+        </a>
 
-      <div class="person">
-        <div class="avatar" style="background-image:url('static/bilde (2).jpg')" aria-hidden="true"></div>
-        <div class="role">Sponsing &amp; bedrift</div>
-        <h3>Mille "Mille" Linna</h3>
-        <a class="mail" href="mailto:jubkom-spons@mannhullet.no">jubkom-spons@mannhullet.no</a>
-      </div>
+        <a class="person" href="mailto:jubkom-spons@mannhullet.no" aria-label='Kontakt Mille "Mille" Linna, Sponsing og bedrift'>
+          <span class="avatar-frame"><img src="static/bilde (2).jpg" alt="" style="object-position: 50% 20%;"></span>
+          <span class="role">Sponsing &amp; bedrift</span>
+          <span class="name">Mille "Mille" Linna</span>
+          <span class="mail">jubkom-spons@mannhullet.no</span>
+        </a>
 
-      <div class="person">
-        <div class="avatar" style="background-image:url('static/bilde (3).jpg')" aria-hidden="true"></div>
-        <div class="role">Trøbbel med nettsiden</div>
-        <h3>[Navn]</h3>
-        <a class="mail" href="mailto:jubkom-web@mannhullet.no">jubkom-web@mannhullet.no</a>
-      </div>
+        <!-- TODO: placeholder name — needs a real person before launch -->
+        <a class="person" href="mailto:jubkom-web@mannhullet.no" aria-label="Kontakt oss om trøbbel med nettsiden">
+          <span class="avatar-frame"><img src="static/bilde (3).jpg" alt="" style="object-position: 50% 25%;"></span>
+          <span class="role">Trøbbel med nettsiden</span>
+          <span class="name ph">[Navn]</span>
+          <span class="mail">jubkom-web@mannhullet.no</span>
+        </a>
 
-    </section>
+      </section>
+    </div>
+
+    <div class="date-footer">
+      <hr />
+      <p class="save-date">Hold av datoen</p>
+      <p class="dates">29. januar – 6. februar · 2027</p>
+    </div>
 
   </main>
 
