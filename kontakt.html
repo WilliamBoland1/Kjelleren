@@ -17,8 +17,12 @@
        .header-nav, .grain/.vignette, :focus-visible and the fadeUp/fadeIn
        keyframes are all shared in background.css — this page only keeps
        its own sizing overrides and content-specific rules. */
+    :root {
+      --title-size: clamp(1.7rem, 5vh, 3rem);
+      --wrap-width: 860px;
+    }
+
     .wrap {
-      max-width: 860px;
       /* modest, roughly-symmetric padding rather than a big top skew — now
          that .wrap centers vertically (background.css), this only needs to
          guarantee clearance under the fixed header on short viewports, not
@@ -30,8 +34,7 @@
     .ph { color: var(--muted); font-style: italic; }
 
     .welcome { text-align: center; margin-bottom: clamp(0.8rem, 2.5vh, 1.5rem); }
-    .welcome h1 {
-      font-size: clamp(1.7rem, 5vh, 3rem);
+    .page-title {
       line-height: 1.08; margin-bottom: clamp(0.5rem, 1.5vh, 0.9rem);
     }
     .welcome p:not(.page-eyebrow) {
@@ -135,10 +138,8 @@
         padding-top: clamp(2.5rem, 14vh, 4rem);
         padding-bottom: 0.5rem;
       }
-      .watermark { font-size: clamp(5rem, 34vh, 10rem); }
       .welcome { margin-bottom: 0.6rem; }
-      .page-eyebrow { margin-bottom: 0.4rem; font-size: 0.64rem; }
-      .welcome h1 {
+      .page-title {
         font-size: clamp(1.3rem, 4.5vh, 1.9rem);
         margin-bottom: 0.4rem;
       }
@@ -157,20 +158,19 @@
       .date-footer hr { margin-bottom: 0.6rem; }
     }
 
-    /* ---- Entrance fade, matching the countdown page (keyframes shared
+    /* ---- Entrance fade, matching the countdown page (keyframes shared,
+       and the header-logo/header-nav/section-rail/social-links delay,
        in background.css) ---- */
-    .header-logo, .header-nav, .section-rail, .welcome, .people, .date-footer, .social-links {
+    .welcome, .people, .date-footer {
       opacity: 0;
       animation: fadeUp 0.9s ease forwards;
     }
-    .header-logo, .header-nav, .section-rail { animation-delay: 0.1s; }
-    .social-links { animation-delay: 0.1s; }
     .welcome { animation-delay: 0.3s; }
     .people { animation-delay: 0.55s; }
     .date-footer { animation-delay: 0.75s; }
 
     @media (prefers-reduced-motion: reduce) {
-      .header-logo, .header-nav, .section-rail, .welcome, .people, .date-footer, .social-links {
+      .welcome, .people, .date-footer {
         animation: none;
         opacity: 1;
       }

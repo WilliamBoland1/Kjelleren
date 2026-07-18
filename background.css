@@ -51,6 +51,14 @@
   --eyebrow-size: clamp(0.68rem, 2.4vw, 1rem);
   --eyebrow-tracking: clamp(0.28em, 1.4vw, 0.45em);
 
+  /* unlike --eyebrow-size above, these two are NOT meant to match across
+     pages — each simple page's heading and .wrap column are intentionally
+     sized/widthed differently for its own content. The fallbacks below only
+     exist so a page fails safe if it forgets to set them; every simple page
+     overrides both in its own <style> block. */
+  --title-size: clamp(1.6rem, 4.6vh, 2.7rem);
+  --wrap-width: 700px;
+
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
 
   /* elevator depth, 0 (ground floor) → 1 (cellar). Only index.html's
@@ -248,7 +256,18 @@ body.no-scroll { overflow: hidden; }
    .wrap column itself starts to fill the viewport. */
 .section-rail {
   display: none;
-  position: fixed; left: clamp(20px, 4vw, 48px); top: 50%; transform: translateY(-50%);
+  position: fixed; left: clamp(20px, 4vw, 48px);
+  /* vertical centering used to be top:50% + transform:translateY(-50%), but
+     this element also carries the shared fadeUp entrance animation below,
+     which animates `transform` too — its final translateY(0) silently wins
+     over this rule's own translateY(-50%) once the fade-in finishes (same
+     trap noted on .header-nav above), leaving the rail pinned at top:50%
+     instead of centered. margin-top does the same centering job (half of
+     .section-rail-row's 34vh height) without touching `transform`, so it
+     survives the animation — and the extra rise moves the rail up to match
+     the raised title/eyebrow above. */
+  top: 50%;
+  margin-top: calc(-17vh - clamp(1.25rem, 4vh, 2.75rem));
   z-index: 5;
 }
 .section-rail-row { display: flex; flex-direction: row-reverse; align-items: center; gap: 16px; }
@@ -348,6 +367,7 @@ body.no-scroll { overflow: hidden; }
   z-index: 2;
   flex: 1;
   width: 100%;
+  max-width: var(--wrap-width);
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -382,16 +402,40 @@ body.no-scroll { overflow: hidden; }
   text-transform: uppercase;
   color: var(--accent);
   text-align: center;
+  /* raises the title+eyebrow pair without moving the content below them
+     (.message/.people/.letter etc. stay in their normal-flow position) —
+     each simple page also runs the fadeUp entrance animation on this and
+     .page-title, which animates `transform`, so a static transform here
+     would get silently overwritten once that finishes (see .section-rail
+     above for the same trap); top+position:relative sidesteps it since it
+     doesn't touch `transform` at all. */
+  position: relative;
+  top: clamp(-2.75rem, -4.5vh, -1.25rem);
+}
+
+/* ---- Landscape phones: shrink the watermark and eyebrow so short viewports
+   (phone landscape heights ~320-430px) don't need to rely on the scroll
+   fallback. Identical on every simple page, so it lives here once; each
+   page's own landscape query keeps only what's genuinely page-specific
+   (wrap padding, heading/letter/message sizing). ---- */
+@media (orientation: landscape) and (max-height: 500px) {
+  .watermark { font-size: clamp(5rem, 34vh, 10rem); }
+  .page-eyebrow { margin-bottom: 0.4rem; font-size: 0.64rem; }
 }
 
 /* ============ Shared page heading — om-jubileet.html / kontakt.html /
-   returnerende.html's big h1. Font-family/weight are guaranteed identical
-   here rather than three pages each hardcoding the same literal font name;
-   size/line-height/margin stay page-specific (each page's own .title /
-   .welcome h1 rule), since they're tuned to that page's content. */
+   returnerende.html's big h1. Font-family/weight/size are guaranteed
+   identical here rather than three pages each hardcoding their own copy;
+   size comes from --title-size (set per page, see :root above) since that
+   legitimately varies with each page's content; line-height/margin stay
+   page-specific (each page's own .page-title rule) for the same reason. */
 .page-title {
   font-family: var(--display);
   font-weight: 800;
+  font-size: var(--title-size);
+  /* see .page-eyebrow below for why this uses top instead of transform */
+  position: relative;
+  top: clamp(-2.75rem, -4.5vh, -1.25rem);
 }
 
 /* ============ Shared "hold av datoen" closer — om-jubileet.html /
@@ -419,6 +463,23 @@ body.no-scroll { overflow: hidden; }
   color: var(--accent);
 }
 .date-footer .save-date { margin-bottom: 0.5rem; }
+
+/* ============ Shared entrance fade — chrome present on every simple page
+   (om-jubileet.html / kontakt.html / returnerende.html only; index.html's
+   hero has its own timing/wrapper — .corner-right, 0.2s delay — see
+   styles.css). Each page's own <style> keeps only its content-specific
+   fade list/delays. ============ */
+.header-logo, .header-nav, .section-rail, .social-links {
+  opacity: 0;
+  animation: fadeUp 0.9s ease forwards;
+  animation-delay: 0.1s;
+}
+@media (prefers-reduced-motion: reduce) {
+  .header-logo, .header-nav, .section-rail, .social-links {
+    animation: none;
+    opacity: 1;
+  }
+}
 
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
 
