@@ -188,8 +188,16 @@
 /* ---- The cellar: not a scene that appears, but an image that slowly
    surfaces out of the same darkness the whole page has been fading into ---- */
 /* shares --concrete with the gradient above it (rather than a separate #000)
-   so the two are never a color apart at the seam */
-.floor--cellar { min-height: 100vh; background: var(--concrete); }
+   so the two are never a color apart at the seam. overflow:hidden (matching
+   .floor--atrium above) clips .cellar-img's own transform:scale(1.06) bleed
+   to this floor's box — without it, that 6% scale adds ~27px of the image's
+   overflow to the *document's* scrollable height, which lets the page
+   scroll 27px past where this floor's real bottom edge is. Everything not
+   itself transformed (the .cellar-hint text + its shadow scrim below) stays
+   pinned to that real edge, so at true max-scroll it end up 27px short of
+   the viewport bottom — a gap that exposes raw, unshadowed photo beneath
+   the caption instead of the scrim reaching all the way down. */
+.floor--cellar { min-height: 100vh; background: var(--concrete); overflow: hidden; }
 .cellar-img {
   position: absolute; inset: 0;
   background-image: url("static/kjelleren.jpg");
