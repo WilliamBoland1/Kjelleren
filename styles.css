@@ -301,10 +301,14 @@ body.nav-recede .header-nav { animation: none; opacity: 0; pointer-events: none;
 .hot--flip .hot-name { left: auto; right: 100%; transform: translate(-8px, -50%); }
 .hot--flip:hover .hot-name, .hot--flip:focus-visible .hot-name { transform: translate(-14px, -50%); }
 
-/* Mobile fallback (<=768px, see the responsive block below): the overlay
-   dots are hidden and the same three hotspots render as a plain stacked
-   list instead — the photo crops hard enough on small screens that three
-   floating dots crowd together and become unreliable tap targets. */
+/* .hotspot-list used to be a <=768px stacked-list fallback for the overlay
+   dots (a plain menu, not the photo itself, to dodge crowding on small
+   screens) — dropped once the current 3-hotspot layout proved to have
+   plenty of clearance between dots even on the narrowest phones, so mobile
+   now gets the same tap-the-photo interaction as desktop. Left rendered
+   (renderHotspots() in script.js still builds it) but permanently hidden,
+   rather than ripping the markup/JS out, in case a future layout with more
+   hotspots needs the fallback again. */
 .hotspot-list { display: none; }
 
 .cellar-hint {
@@ -380,39 +384,31 @@ body.menu-live .cellar-hint { opacity: 1; }
   .depth { display: none; }
 }
 
-/* <=768px: swap the floating dot layer for a stacked list. Kept as an
-   absolutely-positioned overlay within the same viewport (rather than
-   literal page flow below the photo) so it doesn't add scroll height —
-   .floor--cellar's height is load-bearing for the tuned depth/gradient
-   engine above (see .building's comment), and growing it on mobile would
-   shift every one of those tuned stops. */
-@media (max-width: 768px) {
-  .hotspots { display: none; }
-  .hotspot-list {
-    display: block;
-    position: absolute; left: 50%; bottom: clamp(70px, 16vh, 120px);
-    transform: translateX(-50%);
-    width: min(320px, 86vw); z-index: 4;
-    background: rgba(10,8,6,0.78); backdrop-filter: blur(6px);
-    border: 1px solid rgba(255,180,120,0.18); border-radius: 10px;
-    overflow: hidden;
-    opacity: 0; pointer-events: none; transition: opacity 0.9s var(--ease);
-  }
-  body.menu-live .hotspot-list { opacity: 1; pointer-events: auto; }
-  .hotspot-list li + li { border-top: 1px solid rgba(255,255,255,0.08); }
-  .hotspot-list button {
-    display: flex; align-items: center; gap: 12px; width: 100%;
-    padding: 14px 18px; background: none; border: none; color: #fff;
-    font-family: var(--sans); font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase;
-    text-align: left; cursor: pointer;
-  }
-  .hotspot-list button::before {
-    content: ""; flex: none; width: 8px; height: 8px; border-radius: 50%;
-    background: var(--amber); transition: opacity 0.15s ease-out;
-  }
-  .hotspot-list button:hover, .hotspot-list button:focus-visible { color: var(--amber); }
-  .hotspot-list button.visited::before { opacity: 0.5; }
+/* Kept (not deleted) in case the list fallback comes back for a future,
+   busier hotspot layout — see the .hotspot-list comment above. Styling is
+   preserved here, just no longer wired to any breakpoint that shows it. */
+.hotspot-list {
+  position: absolute; left: 50%; bottom: clamp(70px, 16vh, 120px);
+  transform: translateX(-50%);
+  width: min(320px, 86vw); z-index: 4;
+  background: rgba(10,8,6,0.78); backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,180,120,0.18); border-radius: 10px;
+  overflow: hidden;
+  pointer-events: none;
 }
+.hotspot-list li + li { border-top: 1px solid rgba(255,255,255,0.08); }
+.hotspot-list button {
+  display: flex; align-items: center; gap: 12px; width: 100%;
+  padding: 14px 18px; background: none; border: none; color: #fff;
+  font-family: var(--sans); font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase;
+  text-align: left; cursor: pointer;
+}
+.hotspot-list button::before {
+  content: ""; flex: none; width: 8px; height: 8px; border-radius: 50%;
+  background: var(--amber); transition: opacity 0.15s ease-out;
+}
+.hotspot-list button:hover, .hotspot-list button:focus-visible { color: var(--amber); }
+.hotspot-list button.visited::before { opacity: 0.5; }
 /* .header-nav's own <=720px breakpoint is shared, in background.css */
 
 /* ---- Mobile tweaks (matches the countdown reference page) ---- */
