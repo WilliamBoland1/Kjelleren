@@ -363,7 +363,7 @@
      only its volume and tonal "openness" respond to how far
      you've descended, like hearing the party get closer — muffled
      and distant at the top of the scroll, opening up as you arrive.
-     No external audio files — kick, hat and bass are all
+     No external audio files — kick and bass are all
      synthesized live.
      ============================================================ */
   const soundBtn = $("#soundToggle");
@@ -398,11 +398,6 @@
     filter.connect(master);
     master.connect(ctx.destination);
 
-    // shared noise buffer for hats
-    const noiseBuf = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate);
-    const nd = noiseBuf.getChannelData(0);
-    for (let i = 0; i < nd.length; i++) nd[i] = Math.random() * 2 - 1;
-
     // a soft sustained pad underneath the beat
     const padGain = ctx.createGain();
     padGain.gain.value = 0.05;
@@ -414,7 +409,7 @@
     };
     mkPad(110); mkPad(110.6); mkPad(164.8);
 
-    return { ctx, master, filter, noiseBuf };
+    return { ctx, master, filter };
   }
 
   function kick(time) {
@@ -428,19 +423,6 @@
     g.gain.exponentialRampToValueAtTime(0.001, time + 0.32);
     o.connect(g); g.connect(filter);
     o.start(time); o.stop(time + 0.34);
-  }
-
-  function hat(time, vel) {
-    const { ctx, filter, noiseBuf } = audio;
-    const src = ctx.createBufferSource();
-    src.buffer = noiseBuf;
-    const hp = ctx.createBiquadFilter();
-    hp.type = "highpass"; hp.frequency.value = 7500;
-    const g = ctx.createGain();
-    g.gain.setValueAtTime(vel, time);
-    g.gain.exponentialRampToValueAtTime(0.001, time + 0.045);
-    src.connect(hp); hp.connect(g); g.connect(filter);
-    src.start(time); src.stop(time + 0.05);
   }
 
   function bass(time, freq) {
@@ -460,7 +442,6 @@
 
   function scheduleStep(n, time) {
     if (n % 4 === 0) kick(time);                              // four-on-the-floor
-    if (n % 2 === 1) hat(time, n % 4 === 3 ? 0.22 : 0.14);     // off-beat 8th hats
     if (BASS_PATTERN[n]) bass(time, BASS_PATTERN[n]);
   }
 
