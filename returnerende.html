@@ -32,6 +32,16 @@
       text-align: center;
     }
 
+    /* ---- Phones: a little extra top clearance — same root cause as
+       kontakt.html's fix (see the comment there), just a smaller nudge
+       since this page's shorter 2-line heading only sits a little too
+       close, not fully colliding. ---- */
+    @media (max-width: 600px) {
+      .wrap {
+        padding-top: calc(clamp(2rem, 10vh, 4rem) + 1rem);
+      }
+    }
+
     .page-title {
       line-height: 1.12;
       margin-bottom: clamp(1rem, 3vh, 1.75rem);
