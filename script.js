@@ -117,7 +117,7 @@
      ============================================================ */
   const HOTSPOTS = [
     { id: "neon", label: "Neonskiltet", left: 43, top: 38, modalId: "neon" },
-    { id: "faner", label: "Fanene", left: 65, top: 29, modalId: "faner" },
+    { id: "galleri", label: "Galleri", left: 65, top: 29, modalId: "galleri" },
     { id: "dansegulv", label: "Dansegulvet", left: 33, top: 72, modalId: "dansegulv" },
   ];
 
@@ -141,19 +141,41 @@
   }
   assertReservedZones(HOTSPOTS);
 
+  /* Seeds the gallery hotspot with the real cellar/venue photos already in
+     static/ — add more paths here as real event photos come in, nothing
+     else needs to change. (bilde (1-4).jpg are excluded: those are the
+     kontakt.html contact-person portraits, not venue shots.) */
+  const GALLERY_IMAGES = [
+    "static/kjelleren.jpg",
+    "static/Kjeller2.jpg",
+    "static/Trapp2.jpg",
+    "static/trappa.jpg",
+  ];
+
   const content = {
     neon: {
-      kicker: "Neonskiltet",
-      title: "Skiltet som har brent i generasjoner",
-      html: `
-        <p>Den oransje trekanten har hengt over dansegulvet så lenge noen kan huske — kjellerens eget fyrtårn, tent kveld etter kveld i 110 år.</p>
-        <ul class="tl">
-          <li><span class="yr">1915</span> Marinteknikk stiftes. De første marinerne finner veien ned.</li>
-          <li><span class="yr">1948</span> Kjelleren blir fast tilholdssted. Den oransje M-en tennes.</li>
-          <li><span class="yr">1976</span> Tradisjonene formaliseres — sanger, seremonier, samhold.</li>
-          <li><span class="yr">2025</span> Fortsatt samme reise. Fortsatt samme lys.</li>
-        </ul>`,
+      kicker: "Skiltet",
+      title: "Neonskiltet",
+      html: `<p>Informasjon kommer.</p>`,
     },
+    galleri: {
+      kicker: "Veggen",
+      title: "Galleri",
+      html: `
+        <p>Bidler fra tidligere Jubileer.</p>
+        <div class="gal">${GALLERY_IMAGES.map((src) => `<div class="cell" style="background-image:url('${src}')"></div>`).join("")}</div>`,
+    },
+    dansegulv: {
+      kicker: "Gulvet",
+      title: "Dansegulvet",
+      html: `<p>Spilleliste og artist kommer.</p>`,
+    },
+    /* The topics below aren't surfaced as hotspots right now (the photo
+       carries three dots: neon, galleri, dansegulv — see HOTSPOTS above),
+       but are kept here, fully wired, so any of them can come back as a new
+       HOTSPOTS entry later with no other rework. faner (the flag-wall
+       writeup that used to live on the galleri dot) joined this list when
+       that dot became the gallery. */
     faner: {
       kicker: "Veggen",
       title: "Fanene",
@@ -161,22 +183,6 @@
         <p>Hvert kull har satt sitt merke på veggen. Fanene henger tett, år på år, som et stille regnskap over alle som har funnet veien ned hit.</p>
         <p>Noen er brodert for hånd, andre malt i all hast en lørdag kveld — men de henger fortsatt, side om side.</p>`,
     },
-    dansegulv: {
-      kicker: "Gulvet",
-      title: "Dansegulvet",
-      html: `
-        <ul class="prog">
-          <li><span class="t">19:00</span><span>Dørene åpner. Velkomstdram ved foten av trappa.</span></li>
-          <li><span class="t">20:00</span><span>Tale for de 110 årene.</span></li>
-          <li><span class="t">21:00</span><span>Allsang. Du kan sangene, eller lærer dem i kveld.</span></li>
-          <li><span class="t">22:30</span><span>Anlegget skrus opp.</span></li>
-          <li><span class="t">02:00</span><span>Ingen finner veien hjem. Alle fant veien ned.</span></li>
-        </ul>`,
-    },
-    /* The five topics below aren't surfaced as hotspots right now (the photo
-       carries three dots: neon, faner, dansegulv — see HOTSPOTS above), but
-       are kept here, fully wired, so any of them can come back as a new
-       HOTSPOTS entry later with no other rework. */
     historie: {
       kicker: "Plakatene på veggen",
       title: "Historien",
@@ -223,20 +229,6 @@
           <li><span class="t">22:30</span><span>Anlegget skrus opp.</span></li>
           <li><span class="t">02:00</span><span>Ingen finner veien hjem. Alle fant veien ned.</span></li>
         </ul>`,
-    },
-    galleri: {
-      kicker: "Bildene",
-      title: "Galleri",
-      html: `
-        <p>Ekte bilder fra kjelleren. Blitz, korn, mørke kroker — akkurat sånn det ser ut.</p>
-        <div class="gal">
-          <div class="cell" style="background-image:url('static/kjelleren.jpg')"></div>
-          <div class="cell" style="background-image:url('static/Trapp2.jpg')"></div>
-          <div class="cell ph">1948</div>
-          <div class="cell ph">1976</div>
-          <div class="cell ph">1999</div>
-          <div class="cell ph">I KVELD?</div>
-        </div>`,
     },
     effekter: {
       kicker: "Jakka",

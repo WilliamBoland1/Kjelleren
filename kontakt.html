@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300&family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="background.css?v=8">
+  <link rel="stylesheet" href="background.css?v=9">
   <meta name="description" content="Kontaktinformasjon til jubileumskomiteen for Mannhullet 110 år.">
   <meta name="theme-color" content="#060b14">
 
@@ -29,6 +29,18 @@
          do the positioning itself. Matches the hero's own centered-content
          feel instead of pinning everything to the top. */
       padding: clamp(2rem, 10vh, 4rem) clamp(1.5rem, 6vw, 2rem) clamp(1rem, 4vh, 2rem);
+    }
+
+    /* ---- Phones: this page's 3-line heading (the other simple pages' are
+       1-2 lines) already sits close to .page-body's "safe center" floor —
+       the shared -2.75rem/-4.5vh title/eyebrow lift (see .page-title/
+       .page-eyebrow in background.css) then pushes it past that floor and
+       under the fixed header. Extra top padding, sized to exactly cancel
+       that lift (same clamp, sign-flipped), restores the clearance. ---- */
+    @media (max-width: 600px) {
+      .wrap {
+        padding-top: calc(clamp(2rem, 10vh, 4rem) + clamp(1.25rem, 4.5vh, 2.75rem));
+      }
     }
 
     .ph { color: var(--muted); font-style: italic; }

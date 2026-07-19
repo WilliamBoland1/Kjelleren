@@ -163,11 +163,11 @@
    use the same fixed top nav, not just this page. */
 
 /* ---- Entrance fade — same choreography as the countdown reference page ---- */
-.eyebrow, .countdown, .footer, .header-logo, .header-nav, .nav-toggle, .corner-right {
+.eyebrow, .countdown, .footer, .header-logo, .header-nav, .corner-right {
   opacity: 0;
   animation: fadeUp 0.9s ease forwards;
 }
-.header-logo, .header-nav, .nav-toggle, .corner-right { animation-delay: 0.2s; }
+.header-logo, .header-nav, .corner-right { animation-delay: 0.2s; }
 .eyebrow { animation-delay: 0.2s; }
 .countdown { animation-delay: 0.4s; }
 .footer { animation-delay: 0.6s; }

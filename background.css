@@ -257,16 +257,34 @@ body.no-scroll { overflow: hidden; }
 .nav-toggle {
   display: none;
   position: fixed;
+  /* content-sized (not a padded 44px box) so its bars start flush at the
+     same `top` as .header-logo/.social-links instead of sitting centered
+     partway down an invisible box — that mismatch was what made it read
+     as "not inline" with the corner icons. The 44px+ tap target instead
+     comes from ::before below, same idiom as .social-links a::before. */
   top: calc(clamp(0.9rem, 3vh, 1.75rem) + env(safe-area-inset-top, 0px));
   left: 50%;
   transform: translateX(-50%);
   z-index: 8;
-  width: 44px; height: 44px;
-  flex-direction: column; align-items: center; justify-content: center; gap: 6px;
-  background: none; border: none; cursor: pointer;
+  width: clamp(18px, 2.4vw, 22px);
+  flex-direction: column; gap: 6px;
+  background: none; border: none; padding: 0; cursor: pointer;
+  /* fades in on its own (opacity only) rather than joining the shared
+     fadeUp list below — that animation ends by resetting `transform` to
+     translateY(0), which would silently cancel this element's own static
+     translateX(-50%) centering once the entrance finishes (the same trap
+     documented on .section-rail elsewhere in this file) */
+  opacity: 0;
+  animation: fadeIn 0.9s ease forwards;
+  animation-delay: 0.1s;
+}
+.nav-toggle::before {
+  content: "";
+  position: absolute;
+  inset: -14px;
 }
 .nav-toggle span {
-  display: block; width: 22px; height: 2px; border-radius: 1px;
+  display: block; width: 100%; height: 2px; border-radius: 1px;
   background: var(--caption);
   transition: transform 0.25s ease, opacity 0.2s ease, background 0.2s ease;
 }
@@ -546,7 +564,7 @@ body.nav-open .nav-scrim { opacity: 1; pointer-events: auto; }
    hero has its own timing/wrapper — .corner-right, 0.2s delay — see
    styles.css). Each page's own <style> keeps only its content-specific
    fade list/delays. ============ */
-.header-logo, .header-nav, .nav-toggle, .section-rail, .social-links {
+.header-logo, .header-nav, .section-rail, .social-links {
   opacity: 0;
   animation: fadeUp 0.9s ease forwards;
   animation-delay: 0.1s;
