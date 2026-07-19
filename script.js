@@ -147,9 +147,9 @@
      kontakt.html contact-person portraits, not venue shots.) */
   const GALLERY_IMAGES = [
     "static/kjelleren.jpg",
-    "static/Kjeller2.jpg",
-    "static/Trapp2.jpg",
-    "static/trappa.jpg",
+    "static/Pers (1).jpg",
+    "static/Pers (2).jpg",
+    "static/Pers (3).jpg",
   ];
 
   const content = {

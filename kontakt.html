@@ -32,14 +32,24 @@
     }
 
     /* ---- Phones: this page's 3-line heading (the other simple pages' are
-       1-2 lines) already sits close to .page-body's "safe center" floor —
-       the shared -2.75rem/-4.5vh title/eyebrow lift (see .page-title/
-       .page-eyebrow in background.css) then pushes it past that floor and
-       under the fixed header. Extra top padding, sized to exactly cancel
-       that lift (same clamp, sign-flipped), restores the clearance. ---- */
+       1-2 lines) already sits close to .page-body's "safe center" floor, so
+       two things from the shared layout compound into a real collision here
+       specifically: the -2.75rem/-4.5vh title/eyebrow lift (see .page-title/
+       .page-eyebrow in background.css) pushes rendered content past that
+       floor, and even the floor itself (.wrap's own padding-top) turns out
+       to sit slightly *above* the logo's actual bottom edge once you add up
+       its clamp()s — a gap too small to notice on the shorter two-line
+       headings elsewhere, but not here. Cancelling the lift removes the
+       first (a padding-only counter-offset proved too fragile to size
+       precisely — flat, generous headroom is simpler and safer than
+       matching clamp for clamp); the flat top-padding top-up covers the
+       second with real margin instead of a razor-thin fit. ---- */
     @media (max-width: 600px) {
       .wrap {
-        padding-top: calc(clamp(2rem, 10vh, 4rem) + clamp(1.25rem, 4.5vh, 2.75rem));
+        padding-top: calc(clamp(2rem, 10vh, 4rem) + 2rem);
+      }
+      .page-title, .page-eyebrow {
+        top: 0;
       }
     }
 
