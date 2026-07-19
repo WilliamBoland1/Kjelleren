@@ -130,6 +130,13 @@
   width: 100%; max-width: 1200px;
 }
 
+/* mobile-only stand-in for the fixed corner .header-logo (background.css) —
+   hidden here by default so it never renders on desktop; shown and enlarged
+   in its place at the top of the hero stack below <=600px, where
+   .header-logo itself is hidden and .sound-toggle takes over its corner
+   spot instead (see that query further down). */
+.hero-logo { display: none; }
+
 .hero-title {
   font-family: var(--display); font-weight: 800;
   font-size: clamp(1.9rem, 5vw, 3.2rem);
@@ -180,11 +187,13 @@
    use the same fixed top nav, not just this page. */
 
 /* ---- Entrance fade — same choreography as the countdown reference page ---- */
-.hero-title, .eyebrow, .countdown, .footer, .header-logo, .header-nav, .corner-right {
+.hero-logo, .hero-title, .eyebrow, .countdown, .footer, .header-logo, .header-nav, .corner-right {
   opacity: 0;
   animation: fadeUp 0.9s ease forwards;
 }
 .header-logo, .header-nav, .corner-right { animation-delay: 0.2s; }
+/* .hero-logo leads the stack (no delay override — 0s, same as the base
+   rule) so it fades in first, ahead of the title, on mobile. */
 .hero-title { animation-delay: 0.1s; }
 .eyebrow { animation-delay: 0.2s; }
 .countdown { animation-delay: 0.4s; }
@@ -431,6 +440,35 @@ body.menu-live .cellar-hint { opacity: 1; }
 
 /* ---- Mobile tweaks (matches the countdown reference page) ---- */
 @media (max-width: 600px) {
+  /* The corner .header-logo (background.css) moves into the hero stack
+     here instead — bigger, sitting where "Jubileum" used to start, which
+     also pushes the title/eyebrow/countdown/watermark down a bit for free
+     (see the .hero-logo comment above .hero-title for why: growing .content
+     from the top shifts its flex-centered midpoint, and everything below
+     it, down by roughly half of .hero-logo's own height). .sound-toggle
+     takes over the vacated corner spot, using .header-logo's exact
+     top/left formula (background.css) so Lyd lands right where the logo
+     used to sit. */
+  .header-logo { display: none; }
+  .hero-logo {
+    display: inline-block;
+    width: clamp(100px, 30vw, 170px);
+    height: auto;
+    margin-bottom: 1.5rem;
+    filter: drop-shadow(0 0 30px rgba(91, 130, 196, 0.18));
+  }
+  /* combines with .watermark's own translateX(0.044em) optical-centering
+     correction (background.css) rather than overwriting it — a bare
+     translateY here would silently drop that fix. */
+  .watermark { transform: translateX(0.044em) translateY(4.5rem); }
+
+  .sound-toggle {
+    position: fixed;
+    top: calc(clamp(0.9rem, 3vh, 1.75rem) + env(safe-area-inset-top, 0px));
+    left: calc(clamp(0.9rem, 3vw, 1.75rem) + env(safe-area-inset-left, 0px));
+    z-index: 5;
+  }
+
   .separator span { width: 6px; height: 6px; }
   .separator { gap: 0.6rem; }
   .countdown { margin-bottom: 3rem; }
@@ -498,7 +536,7 @@ body.menu-live .cellar-hint { opacity: 1; }
   .floor--cellar { min-height: 50dvh; }
   .hot-dot::before, .sound-bars i, .grain { animation: none !important; }
   .hot-dot::before { opacity: 0.3; transform: translate(-50%, -50%) scale(1); }
-  .hero-title, .eyebrow, .countdown, .footer, .header-logo, .header-nav, .nav-toggle, .corner-right {
+  .hero-logo, .hero-title, .eyebrow, .countdown, .footer, .header-logo, .header-nav, .nav-toggle, .corner-right {
     animation: none;
     opacity: 1;
   }
