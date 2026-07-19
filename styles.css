@@ -446,9 +446,8 @@ body.menu-live .cellar-hint { opacity: 1; }
      (see the .hero-logo comment above .hero-title for why: growing .content
      from the top shifts its flex-centered midpoint, and everything below
      it, down by roughly half of .hero-logo's own height). .sound-toggle
-     takes over the vacated corner spot, using .header-logo's exact
-     top/left formula (background.css) so Lyd lands right where the logo
-     used to sit. */
+     takes over the vacated corner spot (see .corner-right below, which is
+     what actually moves it there). */
   .header-logo { display: none; }
   .hero-logo {
     display: inline-block;
@@ -462,11 +461,18 @@ body.menu-live .cellar-hint { opacity: 1; }
      translateY here would silently drop that fix. */
   .watermark { transform: translateX(0.044em) translateY(4.5rem); }
 
-  .sound-toggle {
-    position: fixed;
-    top: calc(clamp(0.9rem, 3vh, 1.75rem) + env(safe-area-inset-top, 0px));
-    left: calc(clamp(0.9rem, 3vw, 1.75rem) + env(safe-area-inset-left, 0px));
-    z-index: 5;
+  /* .sound-toggle (markup order: Lyd, then .social-links — see index.html)
+     moves to the opposite corner via plain flexbox rather than its own
+     position:fixed: stretching .corner-right edge-to-edge and switching to
+     space-between pushes the first child to the left padded edge and the
+     last to the right one, using ordinary flex layout instead of a
+     position:fixed element nested inside another position:fixed container
+     — which in testing did not reliably escape the row on-device. */
+  .corner-right {
+    left: 0;
+    right: 0;
+    justify-content: space-between;
+    padding: 0 calc(clamp(0.9rem, 3vw, 1.75rem) + env(safe-area-inset-right, 0px)) 0 calc(clamp(0.9rem, 3vw, 1.75rem) + env(safe-area-inset-left, 0px));
   }
 
   .separator span { width: 6px; height: 6px; }
