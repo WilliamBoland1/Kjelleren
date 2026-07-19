@@ -114,12 +114,25 @@
      one entry here. Positions are percentages of .floor--cellar (the same
      box .cellar-img fills with background-size:cover), so they track the
      photo's objects at any viewport width instead of drifting on resize.
-     ============================================================ */
+     leftMobile/topMobile optionally override left/top on phones (≤768px,
+     same breakpoint the dot-vs-list CSS used to switch on) — the photo
+     crops differently there, so a dot tracking the same object on desktop
+     can need its own nudge on a narrow/tall crop. Read once at render
+     time (see MOBILE_LAYOUT below), not on resize — real phones don't
+     resize their viewport width mid-visit. */
   const HOTSPOTS = [
-    { id: "neon", label: "Neonskiltet", left: 43, top: 38, modalId: "neon" },
-    { id: "galleri", label: "Galleri", left: 65, top: 29, modalId: "galleri" },
+    { id: "neon", label: "Neonskiltet", left: 43, top: 38, leftMobile: 38, modalId: "neon" },
+    { id: "galleri", label: "Galleri", left: 65, top: 29, leftMobile: 71, topMobile: 35, modalId: "galleri" },
     { id: "dansegulv", label: "Dansegulvet", left: 33, top: 72, modalId: "dansegulv" },
   ];
+  const MOBILE_LAYOUT = window.innerWidth <= 768;
+  function effectiveSpot(spot) {
+    return {
+      ...spot,
+      left: (MOBILE_LAYOUT && spot.leftMobile != null) ? spot.leftMobile : spot.left,
+      top: (MOBILE_LAYOUT && spot.topMobile != null) ? spot.topMobile : spot.top,
+    };
+  }
 
   /* Reserved zones no dot may enter: the nav bar (top), the depth scale
      (left edge), and the caption (bottom) — this is what caused an old dot
@@ -140,6 +153,7 @@
     });
   }
   assertReservedZones(HOTSPOTS);
+  assertReservedZones(HOTSPOTS.map((s) => ({ ...effectiveSpot(s), id: s.id + " (mobile)" })));
 
   /* Seeds the gallery hotspot with the real cellar/venue photos already in
      static/ — add more paths here as real event photos come in, nothing
@@ -311,11 +325,12 @@
 
   function renderHotspots() {
     HOTSPOTS.forEach((spot, i) => {
+      const { left, top } = effectiveSpot(spot);
       const dot = document.createElement("button");
       dot.type = "button";
-      dot.className = "hot" + (spot.left > 70 ? " hot--flip" : "");
-      dot.style.setProperty("--x", spot.left + "%");
-      dot.style.setProperty("--y", spot.top + "%");
+      dot.className = "hot" + (left > 70 ? " hot--flip" : "");
+      dot.style.setProperty("--x", left + "%");
+      dot.style.setProperty("--y", top + "%");
       dot.style.setProperty("--delay", (i % 3) * 0.9 + "s");
       dot.dataset.key = spot.modalId;
       dot.setAttribute("aria-label", spot.label);
