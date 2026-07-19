@@ -117,8 +117,25 @@
    than --amber, matching that page exactly. ---- */
 .content {
   position: relative; z-index: 2; text-align: center;
-  padding: 2rem; padding-bottom: 3.5rem; /* offsets eyebrow height so countdown center = floor center */
+  /* padding-bottom offsets everything sitting above the countdown (eyebrow
+     +.hero-title) so the countdown itself — not the whole centered block —
+     lands on the floor's true center: .floor--atrium centers .content as a
+     box, so anything added above the countdown needs matching weight added
+     below it to keep the countdown itself centered rather than pushed down.
+     3.5rem covers the eyebrow alone (its own rendered height); the extra
+     4.5rem approximates .hero-title's height (including its own
+     margin-bottom) across its clamp() range — not pixel-exact, but close
+     enough that the deviation is a few px. */
+  padding: 2rem; padding-bottom: 8rem;
   width: 100%; max-width: 1200px;
+}
+
+.hero-title {
+  font-family: var(--display); font-weight: 800;
+  font-size: clamp(1.9rem, 5vw, 3.2rem);
+  line-height: 1.1;
+  color: var(--platinum);
+  margin-bottom: 1.75rem;
 }
 
 /* Same color, font, and size as .footer p below — the two bookend the
@@ -163,11 +180,12 @@
    use the same fixed top nav, not just this page. */
 
 /* ---- Entrance fade — same choreography as the countdown reference page ---- */
-.eyebrow, .countdown, .footer, .header-logo, .header-nav, .corner-right {
+.hero-title, .eyebrow, .countdown, .footer, .header-logo, .header-nav, .corner-right {
   opacity: 0;
   animation: fadeUp 0.9s ease forwards;
 }
 .header-logo, .header-nav, .corner-right { animation-delay: 0.2s; }
+.hero-title { animation-delay: 0.1s; }
 .eyebrow { animation-delay: 0.2s; }
 .countdown { animation-delay: 0.4s; }
 .footer { animation-delay: 0.6s; }
@@ -416,9 +434,14 @@ body.menu-live .cellar-hint { opacity: 1; }
   .separator span { width: 6px; height: 6px; }
   .separator { gap: 0.6rem; }
   .countdown { margin-bottom: 3rem; }
+  /* the desktop top:min(...) formula pins the footer just below the
+     watermark, which reads fine on wide/short desktop viewports but leaves
+     a big empty gap under it on tall phones, where 50%-of-viewport sits
+     nowhere near the bottom. Simpler on mobile: anchor from the bottom
+     directly, so "Hold av datoen" always sits near the true bottom edge. */
   .footer {
-    padding-bottom: 2.5rem;
-    top: min(calc(50% + clamp(6.5rem, 38vw, 14rem) / 2 + 1.5rem), calc(100% - 11rem));
+    top: auto;
+    bottom: calc(clamp(1.5rem, 5vh, 3rem) + env(safe-area-inset-bottom, 0px));
   }
   .eyebrow, .footer p { font-size: 0.73rem; letter-spacing: 0.28em; }
   .footer .save-date { margin-bottom: 0.35rem; }
@@ -475,7 +498,7 @@ body.menu-live .cellar-hint { opacity: 1; }
   .floor--cellar { min-height: 50dvh; }
   .hot-dot::before, .sound-bars i, .grain { animation: none !important; }
   .hot-dot::before { opacity: 0.3; transform: translate(-50%, -50%) scale(1); }
-  .eyebrow, .countdown, .footer, .header-logo, .header-nav, .nav-toggle, .corner-right {
+  .hero-title, .eyebrow, .countdown, .footer, .header-logo, .header-nav, .nav-toggle, .corner-right {
     animation: none;
     opacity: 1;
   }
