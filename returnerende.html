@@ -87,12 +87,16 @@
     <img class="header-logo" src="static/logo.png" alt="Mannhullet / NTH 110 år — 1917–2027">
   </a>
 
-  <nav class="header-nav" aria-label="Sidenavigasjon">
+  <button class="nav-toggle" id="navToggle" type="button" aria-expanded="false" aria-controls="headerNav" aria-label="Åpne meny">
+    <span></span><span></span><span></span>
+  </button>
+  <nav class="header-nav" id="headerNav" aria-label="Sidenavigasjon">
     <a href="index.html">Hjem</a>
     <a href="om-jubileet.html">Les mer</a>
     <a href="kontakt.html">Kontakt oss</a>
     <a href="returnerende.html" aria-current="page">Returnerende</a>
   </nav>
+  <div class="nav-scrim" id="navScrim" aria-hidden="true"></div>
 
   <nav class="section-rail" aria-label="Andre sider" data-current="retur">
     <div class="section-rail-row">
@@ -136,5 +140,6 @@
     </div>
   </main>
 
+  <script src="nav.js?v=1"></script>
 </body>
 </html>

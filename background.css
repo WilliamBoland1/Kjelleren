@@ -246,12 +246,77 @@ body.no-scroll { overflow: hidden; }
    .section-rail below now owns that job, so every link in this row reads
    the same regardless of which page you're on. */
 
+/* ============ Mobile nav toggle + slide-in panel ============
+   Below 720px, the 4-link row used to drop to a second fixed row under the
+   logo — with a header-nav collision against wrapped rows on narrow/short
+   viewports. Now it collapses to a single hamburger icon (same corner as
+   the desktop row) that opens the actual links as a right-edge panel, so
+   the fixed header never grows past one row on mobile. Hidden entirely
+   above 720px, where .header-nav's normal inline row keeps running
+   unchanged and this button/scrim/JS have nothing to do. */
+.nav-toggle {
+  display: none;
+  position: fixed;
+  top: calc(clamp(0.9rem, 3vh, 1.75rem) + env(safe-area-inset-top, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 8;
+  width: 44px; height: 44px;
+  flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+  background: none; border: none; cursor: pointer;
+}
+.nav-toggle span {
+  display: block; width: 22px; height: 2px; border-radius: 1px;
+  background: var(--caption);
+  transition: transform 0.25s ease, opacity 0.2s ease, background 0.2s ease;
+}
+.nav-toggle:hover span, .nav-toggle:focus-visible span { background: var(--amber); }
+/* morphs into an X once open, so the same button both opens and closes it */
+body.nav-open .nav-toggle span:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+body.nav-open .nav-toggle span:nth-child(2) { opacity: 0; }
+body.nav-open .nav-toggle span:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+
+.nav-scrim {
+  display: none;
+  position: fixed; inset: 0; z-index: 6;
+  background: rgba(4, 7, 12, 0.6);
+  backdrop-filter: blur(4px);
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+body.nav-open .nav-scrim { opacity: 1; pointer-events: auto; }
+
 @media (max-width: 720px) {
-  /* own row below the logo/social row, so it can't collide with either
-     regardless of how narrow the viewport gets — 56px clears the logo's
-     larger mobile-clamped height plus a little breathing room */
-  .header-nav { top: calc(clamp(0.9rem, 3vh, 1.75rem) + env(safe-area-inset-top, 0px) + 56px); gap: 1.2rem; }
-  .header-nav a { font-size: 10px; letter-spacing: 0.1em; }
+  .nav-toggle { display: flex; }
+  .nav-scrim { display: block; }
+  body.nav-open { overflow: hidden; }
+
+  /* the inline link row becomes a right-edge panel; `right` (not
+     `transform`) drives the open/closed state on purpose — this element
+     also carries the shared fadeUp entrance animation above, which animates
+     `transform`, and that animation's own final translateY(0) would
+     silently overwrite a transform-based slide once it finishes (same trap
+     noted on .section-rail elsewhere in this file). -400px clears the
+     panel's own max width (280px) by a comfortable margin so it's always
+     fully off-screen at rest, on any viewport. */
+  .header-nav {
+    top: 0; left: auto; right: -400px; bottom: 0;
+    z-index: 7;
+    width: min(280px, 78vw); height: 100dvh;
+    flex-direction: column; flex-wrap: nowrap;
+    justify-content: center; align-items: flex-start;
+    gap: 2rem; row-gap: 2rem;
+    padding: clamp(28px, 8vw, 48px);
+    padding-top: calc(clamp(28px, 8vw, 48px) + env(safe-area-inset-top, 0px));
+    padding-right: calc(clamp(28px, 8vw, 48px) + env(safe-area-inset-right, 0px));
+    overflow-y: auto;
+    background: linear-gradient(180deg, #0e1626, #0a0f1a);
+    border-left: 1px solid rgba(147, 166, 194, 0.18);
+    box-shadow: -40px 0 80px rgba(0, 0, 0, 0.55);
+    transition: right 0.4s var(--ease);
+  }
+  body.nav-open .header-nav { right: 0; }
+  .header-nav a { font-size: 15px; letter-spacing: 0.12em; }
 }
 
 /* ============ Section rail — om-jubileet.html / kontakt.html /
@@ -481,13 +546,13 @@ body.no-scroll { overflow: hidden; }
    hero has its own timing/wrapper — .corner-right, 0.2s delay — see
    styles.css). Each page's own <style> keeps only its content-specific
    fade list/delays. ============ */
-.header-logo, .header-nav, .section-rail, .social-links {
+.header-logo, .header-nav, .nav-toggle, .section-rail, .social-links {
   opacity: 0;
   animation: fadeUp 0.9s ease forwards;
   animation-delay: 0.1s;
 }
 @media (prefers-reduced-motion: reduce) {
-  .header-logo, .header-nav, .section-rail, .social-links {
+  .header-logo, .header-nav, .nav-toggle, .section-rail, .social-links {
     animation: none;
     opacity: 1;
   }
