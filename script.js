@@ -361,8 +361,9 @@
      HOUSE BEAT (WebAudio) — off by default.
      A steady four-on-the-floor beat that never changes tempo;
      only its volume and tonal "openness" respond to how far
-     you've descended, like hearing the party get closer.
-     No external audio files — kick, hat, clap and bass are all
+     you've descended, like hearing the party get closer — muffled
+     and distant at the top of the scroll, opening up as you arrive.
+     No external audio files — kick, hat and bass are all
      synthesized live.
      ============================================================ */
   const soundBtn = $("#soundToggle");
@@ -389,15 +390,15 @@
     // master bus: everything passes through a filter that "opens up" with depth
     const filter = ctx.createBiquadFilter();
     filter.type = "lowpass";
-    filter.frequency.value = 500;
-    filter.Q.value = 0.7;
+    filter.frequency.value = 220;
+    filter.Q.value = 1.1;
 
     const master = ctx.createGain();
     master.gain.value = 0;
     filter.connect(master);
     master.connect(ctx.destination);
 
-    // shared noise buffer for hats/claps
+    // shared noise buffer for hats
     const noiseBuf = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate);
     const nd = noiseBuf.getChannelData(0);
     for (let i = 0; i < nd.length; i++) nd[i] = Math.random() * 2 - 1;
@@ -442,21 +443,6 @@
     src.start(time); src.stop(time + 0.05);
   }
 
-  function clap(time) {
-    const { ctx, filter, noiseBuf } = audio;
-    [0, 0.012, 0.024].forEach((d) => {
-      const src = ctx.createBufferSource();
-      src.buffer = noiseBuf;
-      const bp = ctx.createBiquadFilter();
-      bp.type = "bandpass"; bp.frequency.value = 1300; bp.Q.value = 1.2;
-      const g = ctx.createGain();
-      g.gain.setValueAtTime(0.5, time + d);
-      g.gain.exponentialRampToValueAtTime(0.001, time + d + 0.13);
-      src.connect(bp); bp.connect(g); g.connect(filter);
-      src.start(time + d); src.stop(time + d + 0.14);
-    });
-  }
-
   function bass(time, freq) {
     const { ctx, filter } = audio;
     const o = ctx.createOscillator();
@@ -475,7 +461,6 @@
   function scheduleStep(n, time) {
     if (n % 4 === 0) kick(time);                              // four-on-the-floor
     if (n % 2 === 1) hat(time, n % 4 === 3 ? 0.22 : 0.14);     // off-beat 8th hats
-    if (n === 4 || n === 12) clap(time);                       // backbeat
     if (BASS_PATTERN[n]) bass(time, BASS_PATTERN[n]);
   }
 
@@ -492,8 +477,8 @@
   function updateAudioDepth(depth) {
     if (!audio || !playing) return;
     // deeper = louder + brighter — tempo stays constant, only the "openness" shifts
-    audio.master.gain.setTargetAtTime(lerp(0.16, 0.34, depth), audio.ctx.currentTime, 0.4);
-    audio.filter.frequency.setTargetAtTime(lerp(450, 9000, depth), audio.ctx.currentTime, 0.5);
+    audio.master.gain.setTargetAtTime(lerp(0.10, 0.34, depth), audio.ctx.currentTime, 0.4);
+    audio.filter.frequency.setTargetAtTime(lerp(220, 9000, depth), audio.ctx.currentTime, 0.5);
   }
 
   soundBtn.addEventListener("click", () => {
