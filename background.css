@@ -247,13 +247,23 @@ body.no-scroll { overflow: hidden; }
    the same regardless of which page you're on. */
 
 /* ============ Mobile nav toggle + slide-in panel ============
-   Below 720px, the 4-link row used to drop to a second fixed row under the
-   logo — with a header-nav collision against wrapped rows on narrow/short
-   viewports. Now it collapses to a single hamburger icon (same corner as
-   the desktop row) that opens the actual links as a right-edge panel, so
-   the fixed header never grows past one row on mobile. Hidden entirely
-   above 720px, where .header-nav's normal inline row keeps running
-   unchanged and this button/scrim/JS have nothing to do. */
+   The link row used to drop to a second fixed row under the logo on narrow
+   viewports — wrapped rows colliding with the rest of the fixed header was
+   exactly the bug this hamburger was introduced to kill. Below the threshold
+   the row collapses to a single icon (same corner as the desktop row) that
+   opens the links as a right-edge panel, so the fixed header never grows past
+   one row. Above it, .header-nav's normal inline row keeps running unchanged
+   and this button/scrim/JS have nothing to do.
+
+   The threshold is 1023px, not the original 720px, because the row now holds
+   five links, not four. index.html is the tight case: .corner-right there
+   carries "Lyd" plus three social icons, and the row is centered rather than
+   packed, so the two close on each other from both sides. Measured in Chrome
+   at 1024px: the five labels are 435px of text, the row 525px wide, and the
+   clearance between "Bli frivillig" and .corner-right is 33px — with the gap
+   band below applied. Without it the clamp() opens to 3vw and that clearance
+   falls to ~17px, which is why the band exists. So the row genuinely fits down
+   to 1024 and hands over to the panel below that. */
 .nav-toggle {
   display: none;
   position: fixed;
@@ -304,7 +314,7 @@ body.nav-open .nav-toggle span:nth-child(3) { transform: translateY(-8px) rotate
 }
 body.nav-open .nav-scrim { opacity: 1; pointer-events: auto; }
 
-@media (max-width: 720px) {
+@media (max-width: 1023px) {
   .nav-toggle { display: flex; }
   .nav-scrim { display: block; }
   body.nav-open { overflow: hidden; }
@@ -335,6 +345,20 @@ body.nav-open .nav-scrim { opacity: 1; pointer-events: auto; }
   }
   body.nav-open .header-nav { right: 0; }
   .header-nav a { font-size: 15px; letter-spacing: 0.12em; }
+  /* iOS Safari can still rubber-band the document behind the scrim even with
+     body { overflow: hidden } — frivillig.html is the first page long enough
+     for that to show. Contain keeps the scroll chain inside the panel. */
+  .header-nav { overscroll-behavior: contain; }
+}
+
+/* the narrow end of the desktop row: the five links fit, but the clamp()'s
+   own 3vw track spends the remaining margin on air. Pulling the gap in buys
+   back ~16px of clearance on each side of the centered row without touching
+   anything above 1200px, where there is room to spare. column-gap, not the
+   `gap` shorthand — that would also overwrite the row-gap: 0.5rem the base
+   rule sets as its wrapping safety net. */
+@media (min-width: 1024px) and (max-width: 1200px) {
+  .header-nav { column-gap: clamp(1.25rem, 2.2vw, 2.5rem); }
 }
 
 /* ============ Section rail — om-jubileet.html / kontakt.html /
@@ -390,10 +414,25 @@ body.nav-open .nav-scrim { opacity: 1; pointer-events: auto; }
   width: 3px; height: 26px; border-radius: 2px;
   background: var(--amber);
   box-shadow: 0 0 10px 1px rgba(255, 122, 30, 0.55);
+  /* inert on the three page-sitemap rails, whose [data-current] never changes
+     after load; on frivillig.html's scroll-spy rail (see rail.js) this is what
+     makes the marker slide between stops instead of snapping. */
+  transition: top 0.25s var(--ease);
+}
+@media (prefers-reduced-motion: reduce) {
+  .section-rail-line::after { transition: none; }
 }
 .section-rail[data-current="om"] .section-rail-line::after { top: calc(33.333% - 13px); }
 .section-rail[data-current="kontakt"] .section-rail-line::after { top: calc(66.667% - 13px); }
 .section-rail[data-current="retur"] .section-rail-line::after { top: calc(100% - 26px); }
+/* frivillig.html's rail marks the four role categories on the page rather than
+   the four pages of the site, so it needs its own names — the offsets are the
+   identical four evenly-spaced stops on the identical 34vh line, only the
+   value written into [data-current] differs (by rail.js, as you scroll). */
+.section-rail[data-current="bar"]         .section-rail-line::after { top: 0; }
+.section-rail[data-current="vertskap"]    .section-rail-line::after { top: calc(33.333% - 13px); }
+.section-rail[data-current="arrangement"] .section-rail-line::after { top: calc(66.667% - 13px); }
+.section-rail[data-current="kultur"]      .section-rail-line::after { top: calc(100% - 26px); }
 .section-rail-stops {
   list-style: none; height: 34vh; text-align: left;
   display: flex; flex-direction: column; justify-content: space-between;
@@ -410,7 +449,10 @@ body.nav-open .nav-scrim { opacity: 1; pointer-events: auto; }
   width: 8px; height: 1px; background: currentColor; opacity: 0.7;
 }
 .section-rail-link:hover, .section-rail-link:focus-visible { color: var(--amber); opacity: 1; }
-.section-rail-link[aria-current="page"] { color: var(--amber); opacity: 1; font-weight: 600; }
+/* "page" on the sitemap rails, "true" on frivillig.html's in-page rail —
+   the current stop there is a section of this page, not another page. */
+.section-rail-link[aria-current="page"],
+.section-rail-link[aria-current="true"] { color: var(--amber); opacity: 1; font-weight: 600; }
 
 @media (min-width: 1280px) {
   .section-rail { display: block; }
@@ -482,6 +524,31 @@ body.nav-open .nav-scrim { opacity: 1; pointer-events: auto; }
   flex-direction: column;
   justify-content: safe center;
 }
+
+/* ---- Long simple pages — frivillig.html ----
+   .simple-page above locks a page to exactly one screen (100dvh, content
+   vertically centered), which is right for the three short pages and wrong
+   for one that is inherently taller than the viewport. This modifier releases
+   the height, tops the content out and pins the watermark; it is purely
+   additive, so the pages that don't ask for it are untouched. Both `height`
+   and `min-height` are needed — `html, body { height: 100% }` near the top of
+   this file would otherwise re-clamp the body back to one screen. */
+.simple-page.simple-page--long { height: auto; min-height: 100dvh; }
+.simple-page--long .page-body  { justify-content: flex-start; }
+/* .watermark is position:absolute; inset:0 (see above). Against a tall body
+   that stretches "NTH" to the height of the whole document and parks it around
+   the document's middle. fixed puts it back where .grain/.vignette already
+   are: one screenful, behind everything, staying put as you scroll. */
+.simple-page--long .watermark  { position: fixed; }
+
+/* the shared -2.75rem/-4.5vh lift on .page-title/.page-eyebrow exists to raise
+   *vertically centered* content above its own midpoint. Top-aligned content
+   has no midpoint to correct for, so there the lift only drags the heading up
+   toward the fixed header. `top`/`margin-top` and never `transform`: both of
+   these elements also run fadeUp (see the trap noted on .section-rail). */
+.simple-page--long .page-title,
+.simple-page--long .page-eyebrow { top: 0; }
+.simple-page--long .section-rail { margin-top: -17vh; }
 
 /* uses --eyebrow-size/--eyebrow-tracking (defined once in :root above) so
    this always reads as the same design element as the hero's own .eyebrow

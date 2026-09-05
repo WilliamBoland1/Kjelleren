@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Bli frivillig — Mannhullet 110 år</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300&family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="background.css?v=10">
+  <meta name="description" content="Jubileumskomiteen for Mannhullet 110 år søker frivillige til seks verv innen bar, vertskap, arrangement og kultur.">
+  <meta name="theme-color" content="#060b14">
+
+  <style>
+    /* :root tokens, body base (.simple-page + .simple-page--long), .wrap base,
+       .page-title/.page-eyebrow, .section-rail, .header-nav, .grain/.vignette,
+       :focus-visible and the fadeUp/fadeIn keyframes are all shared in
+       background.css — this page only keeps its own sizing overrides and
+       content-specific rules. */
+    :root {
+      --title-size: clamp(1.7rem, 5vh, 3rem);
+      /* not a free choice: at 1280px the rail's footprint reaches 172px from
+         the left edge (48px offset + line + 16px gap + "ARRANGEMENT"). Measured
+         with a scrollbar present — this page always has one — an 860px column
+         starts at 202px, leaving 30px of clearance. A wider wrap would run the
+         rail straight through the cards. */
+      --wrap-width: 860px;
+    }
+
+    /* pairs with .simple-page--long in background.css — html's own height:100%
+       would otherwise re-clamp this page back to a single screen */
+    html { height: auto; min-height: 100%; }
+
+    .wrap {
+      /* more top padding than the other simple pages: their content is
+         vertically centered and so sits well clear of the fixed header, while
+         this page starts at the top. The bottom padding keeps .date-footer off
+         the edge of the screen. */
+      padding: clamp(5.5rem, 16vh, 9rem) clamp(1.5rem, 6vw, 2rem) clamp(2.5rem, 8vh, 4.5rem);
+    }
+
+    /* This is the first simple page that actually scrolls, and so the first
+       where content travels under the fixed header — card headings were
+       landing straight on top of the nav row. A navy-to-transparent gradient
+       between the content (.wrap, z-index 2) and the chrome (z-index 5) fixes
+       it without introducing a visible header bar the rest of the site
+       doesn't have: it is the page's own background colour, so it reads as
+       nothing at all until something passes beneath it. */
+    .top-fade {
+      position: fixed; left: 0; right: 0; top: 0;
+      height: clamp(6.5rem, 15vh, 8.5rem);
+      z-index: 4; pointer-events: none;
+      background: linear-gradient(180deg,
+        var(--navy) 0%, var(--navy) 46%, rgba(16, 33, 55, 0.82) 70%, rgba(16, 33, 55, 0) 100%);
+    }
+
+    .welcome { text-align: center; }
+    .page-title { line-height: 1.08; }
+
+    .intro strong { color: var(--ink); font-weight: 600; }
+    .intro {
+      max-width: 620px;
+      margin: clamp(1rem, 3vh, 1.6rem) auto 0;
+      text-align: center;
+      font-size: clamp(0.88rem, 2.1vh, 1.05rem);
+      color: #c3d0e2;
+    }
+
+    /* quieter than .intro — this is reassurance for anyone who reads the six
+       verv and concludes there is nothing here for them, so it sits with the
+       pitch rather than buried at the bottom, but a tier down in weight */
+    .note {
+      max-width: 620px;
+      margin: clamp(0.7rem, 2vh, 1rem) auto clamp(2rem, 6vh, 3.25rem);
+      text-align: center;
+      font-size: clamp(0.8rem, 1.9vh, 0.92rem);
+      color: var(--caption);
+    }
+
+    /* anchors land clear of the fixed header, not level with it — measured:
+       12vh put a .cat-title at y=96 against a logo whose bottom edge is at
+       ~108, so the heading arrived alongside the chrome rather than below it */
+    .cat { scroll-margin-top: clamp(6.5rem, 16vh, 9rem); }
+    .cat + .cat { margin-top: clamp(2.5rem, 7vh, 4.5rem); }
+
+    /* category label: the site's letterspaced uppercase eyebrow idiom plus the
+       same hairline as .date-footer's hr, pulled out to the column edge.
+       Blue rather than --amber: these are section labels, not something you
+       can click (background.css reserves amber for that). #7fa0d9 rather than
+       --accent itself, and for the same reason .role .count below uses it —
+       --accent measures only 4.2:1 against the --navy page background at this
+       12px size, under AA; this is 6.1:1. */
+    .cat-title {
+      display: flex; align-items: center; gap: 1rem;
+      font-family: var(--sans); font-size: 12px; font-weight: 600;
+      letter-spacing: 0.28em; text-transform: uppercase; color: #7fa0d9;
+      margin-bottom: clamp(1rem, 3vh, 1.6rem);
+    }
+    .cat-title::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+
+    .role-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: clamp(0.9rem, 2.2vw, 1.4rem);
+    }
+
+    /* a category with a single role keeps the half-width card (one grid child
+       simply takes the first cell) so all six openings read as one system of
+       equally-weighted cards — the .cat-title hairline above already carries
+       the "this is a section" signal. */
+    .role {
+      display: flex; flex-direction: column;
+      background: var(--bg-soft);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: clamp(1.1rem, 3vh, 1.75rem) clamp(1rem, 2.4vw, 1.5rem) clamp(1.2rem, 3vh, 1.85rem);
+    }
+    .role h3 {
+      font-family: var(--display); font-weight: 700;
+      font-size: clamp(1.02rem, 2.5vh, 1.28rem); line-height: 1.2;
+      color: var(--ink); overflow-wrap: break-word;
+      margin-bottom: clamp(0.5rem, 1.4vh, 0.8rem);
+    }
+    /* how many people the role takes ("2 stk"). #7fa0d9 rather than --accent
+       for the same reason as kontakt.html's .person .role: against --bg-soft
+       (not the page background) --accent only clears AA by a hair. */
+    .role .count {
+      display: block; font-size: 0.62rem; font-weight: 600;
+      letter-spacing: 0.16em; text-transform: uppercase;
+      color: #7fa0d9; margin-bottom: 0.35rem;
+    }
+    .role p { font-size: clamp(0.85rem, 2vh, 0.96rem); color: #c3d0e2; }
+    /* several roles are described in two short paragraphs in the source text */
+    .role p + p { margin-top: 0.55rem; }
+    .role .looking {
+      font-size: 0.66rem; font-weight: 600; letter-spacing: 0.16em;
+      text-transform: uppercase; color: var(--caption);
+      margin: clamp(0.75rem, 2vh, 1.1rem) 0 0.6rem;
+    }
+
+    /* deliberately not .tl (background.css): that is a live shared component
+       index.html's modal uses as a timeline — its vertical orange rule is the
+       timeline's own semantics, not a list's. Only the amber dot is borrowed,
+       so the two read as siblings. */
+    .role-wants { list-style: none; margin: 0; }
+    .role-wants li {
+      position: relative; padding-left: 18px;
+      font-size: clamp(0.8rem, 1.9vh, 0.9rem); color: #c3d0e2;
+    }
+    .role-wants li + li { margin-top: 0.45rem; }
+    /* the same amber dot as .tl li::before, scaled down; anchored in em so it
+       tracks the line box at any clamp() value */
+    .role-wants li::before {
+      content: ""; position: absolute; left: 0; top: 0.55em;
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--amber); opacity: 0.85;
+    }
+
+    .closing { margin: clamp(2.5rem, 7vh, 4.5rem) auto 0; max-width: 620px; text-align: center; }
+    .closing p { font-size: clamp(0.88rem, 2.1vh, 1.05rem); color: #c3d0e2; }
+    .closing p + p { margin-top: clamp(0.6rem, 1.6vh, 0.9rem); }
+
+    /* the one hard date on the page, in the same letterspaced-uppercase idiom
+       as the other labels but in --ink so it reads as the most solid line in
+       the block. Not amber — that stays reserved for what you can click. */
+    .deadline {
+      margin-top: clamp(1.25rem, 3.5vh, 2rem);
+      font-size: 0.74rem; font-weight: 600; letter-spacing: 0.16em;
+      text-transform: uppercase; color: var(--ink);
+    }
+    .deadline span { color: #7fa0d9; }
+
+    /* no .btn here: the call to action IS the address, so the page shows it
+       instead of hiding it behind a button label. Sits tight under .deadline
+       as the second half of one two-line block — the date, then where to send
+       it. Plain sentence weight: the amber address carries the emphasis, so
+       the line needs no label styling of its own. */
+    .apply {
+      margin-top: clamp(0.4rem, 1.2vh, 0.65rem);
+      font-size: clamp(0.88rem, 2.1vh, 1.05rem);
+      color: #c3d0e2;
+    }
+    .apply-mail {
+      color: var(--amber); text-decoration: none;
+      border-bottom: 1px solid rgba(255, 122, 30, 0.45);
+      padding-bottom: 2px;
+      /* nowrap, not break-word: on a narrow phone the line is a few pixels too
+         long, and letting it break inside the address splits it as
+         "jubkom-" / "leder@mannhullet.no". Keeping the address whole forces
+         the break at the space in front of it instead. */
+      white-space: nowrap;
+      transition: color 0.2s ease, border-color 0.2s ease;
+    }
+    .apply-mail:hover, .apply-mail:focus-visible {
+      color: #ff8a34; border-bottom-color: var(--amber);
+    }
+
+    .ask { margin-top: clamp(1.1rem, 3vh, 1.6rem); font-size: clamp(0.8rem, 1.9vh, 0.9rem); }
+    /* amber for the link, same as .contact-row a in background.css */
+    .ask a { color: var(--amber); text-underline-offset: 3px; }
+
+    /* 760, not the file's usual 720: at 721px the two columns are only ~318px
+       wide, which is tight for three 0.9rem bullets */
+    @media (max-width: 760px) {
+      .role-grid { grid-template-columns: minmax(0, 1fr); }
+      .role { border-radius: 14px; }
+    }
+
+    /* smooth anchor scrolling is opt-in per page (background.css sets
+       html { scroll-behavior: auto } globally) and only where motion is welcome */
+    @media (prefers-reduced-motion: no-preference) {
+      html { scroll-behavior: smooth; }
+    }
+
+    /* ---- Entrance fade — above the fold only. Everything below it renders at
+       full opacity from the first paint: the site's fade pattern is opacity:0
+       in CSS that the animation lifts to 1, so a scroll-reveal would move that
+       gate behind JavaScript and make the whole page below the fold invisible
+       if rail.js ever failed to load. Nothing here depends on JS today. The
+       animation sits on the section, never on individual cards, which keeps
+       the transform trap shut (see .section-rail in background.css). ---- */
+    .page-title, .page-eyebrow, .intro, .note, .cat--bar {
+      opacity: 0;
+      animation: fadeUp 0.9s ease forwards;
+    }
+    .page-title  { animation-delay: 0.3s; }
+    .page-eyebrow { animation-delay: 0.45s; }
+    /* the note arrives with the intro, as one block, rather than adding a
+       fifth beat to the entrance */
+    .intro, .note { animation-delay: 0.6s; }
+    .cat--bar    { animation-delay: 0.75s; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .page-title, .page-eyebrow, .intro, .note, .cat--bar {
+        animation: none;
+        opacity: 1;
+      }
+    }
+  </style>
+</head>
+<body class="simple-page simple-page--long">
+
+  <div class="grain" aria-hidden="true"></div>
+  <div class="vignette" aria-hidden="true"></div>
+  <div class="top-fade" aria-hidden="true"></div>
+
+  <div class="watermark" aria-hidden="true"><span>NTH</span></div>
+
+  <a href="index.html" class="header-logo-link" aria-label="Til forsiden">
+    <img class="header-logo" src="static/logo.png" alt="Mannhullet / NTH 110 år — 1917–2027">
+  </a>
+
+  <button class="nav-toggle" id="navToggle" type="button" aria-expanded="false" aria-controls="headerNav" aria-label="Åpne meny">
+    <span></span><span></span><span></span>
+  </button>
+  <nav class="header-nav" id="headerNav" aria-label="Sidenavigasjon">
+    <a href="index.html">Hjem</a>
+    <a href="om-jubileet.html">Les mer</a>
+    <a href="kontakt.html">Kontakt oss</a>
+    <a href="returnerende.html">Returnerende</a>
+    <a href="frivillig.html" aria-current="page">Bli frivillig</a>
+  </nav>
+  <div class="nav-scrim" id="navScrim" aria-hidden="true"></div>
+
+  <!-- unlike the other simple pages, this rail is an in-page table of contents
+       rather than a sitemap: [data-spy] is what rail.js looks for, and
+       data-current="bar" is the correct static state if it never runs -->
+  <nav class="section-rail" aria-label="Kategorier" data-spy data-current="bar">
+    <div class="section-rail-row">
+      <ol class="section-rail-stops">
+        <li><a href="#cat-bar" class="section-rail-link" aria-current="true">Bar</a></li>
+        <li><a href="#cat-vertskap" class="section-rail-link">Vertskap</a></li>
+        <li><a href="#cat-arrangement" class="section-rail-link">Arrangement</a></li>
+        <li><a href="#cat-kultur" class="section-rail-link">Kultur</a></li>
+      </ol>
+      <div class="section-rail-line"></div>
+    </div>
+  </nav>
+
+  <div class="social-links">
+    <a href="https://www.instagram.com/jub110_mannhullet/" target="_blank" rel="noopener" aria-label="Instagram">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+    </a>
+    <a href="https://www.facebook.com/people/110-%C3%A5rs-jubileum-Mannhullet/61590599620480/" target="_blank" rel="noopener" aria-label="Facebook">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+    </a>
+    <a href="https://www.strava.com/athletes/134381213" target="_blank" rel="noopener" aria-label="Strava">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.172"></path></svg>
+    </a>
+  </div>
+
+  <main class="wrap">
+
+    <div class="page-body">
+      <header class="welcome">
+        <h1 class="page-title">Vi søker frivillige</h1>
+        <p class="page-eyebrow"></p>
+      </header>
+
+      <p class="intro">Jubileumskomiteen søker flere mellomledere som vil være med på å forme
+        og gjennomføre jubileet. Som mellomleder får du ansvar for ditt eget område og stor
+        mulighet til å påvirke hvordan jubileet blir.<br> 
+        Fristen er <strong>onsdag 9. september kl. 23:59</strong>.</p>
+
+      <p class="note">Dette er ikke siste mulighet: nærmere jubileet blir det plass til mange
+        flere som funker, med arbeidsoppgaver som har litt mindre ansvar enn de under.</p>
+
+      <section class="cat cat--bar" id="cat-bar" aria-labelledby="cat-bar-h">
+        <h2 class="cat-title" id="cat-bar-h">Bar</h2>
+        <div class="role-grid">
+
+          <article class="role">
+            <h3>Drinksjef</h3>
+            <p>Som drinksjef får du sette preg på barene og drikkekonseptet under jubileet.
+              Du lager barkart, har ansvar for spritsalg og arrangerer drinkskurs. Her får du
+              være kreativ og bidra til at barene blir en skikkelig del av festivalopplevelsen.</p>
+            <p class="looking">Vi ser etter deg som:</p>
+            <ul class="role-wants">
+              <li>Er kreativ og har lyst til å utvikle jubileets barkonsept.</li>
+              <li>Liker å organisere og få ting til å skje.</li>
+              <li>Vil bidra til god stemning og gode opplevelser gjennom jubileet.</li>
+            </ul>
+          </article>
+
+        </div>
+      </section>
+
+      <section class="cat cat--vertskap" id="cat-vertskap" aria-labelledby="cat-vertskap-h">
+        <h2 class="cat-title" id="cat-vertskap-h">Vertskap</h2>
+        <div class="role-grid">
+
+          <article class="role">
+            <span class="count">2 stk</span>
+            <h3>Vertskap mellomleder</h3>
+            <p>Vi søker to mellomledere som vil være med å forvandle Tyholt til et
+              festivalområde. Her er det rom for å tenke STORT, og sette DITT preg på jubileet.
+              Oppgavene innebærer å være med å planlegge sammen med vertskap- og barsjef hvordan
+              campus skal utformes, bygge, sette opp vaktlister og hjelpe til å holde styr på
+              funker. Denne stillingen passer for deg som er kreativ, handy og ikke er redd for
+              å tenke stort.</p>
+            <p>Her får du tenke stort, komme med egne ideer og være med på å gjøre Tyholt klar
+              for jubileumsfeiring!</p>
+            <p class="looking">Vi ser etter deg som:</p>
+            <ul class="role-wants">
+              <li>Er kreativ, handy og løsningsorientert.</li>
+              <li>Liker å planlegge og organisere.</li>
+              <li>Har lyst til å være med på å skape et skikkelig festivalområde på Tyholt.</li>
+            </ul>
+          </article>
+
+        </div>
+      </section>
+
+      <section class="cat cat--arrangement" id="cat-arrangement" aria-labelledby="cat-arrangement-h">
+        <h2 class="cat-title" id="cat-arrangement-h">Arrangement</h2>
+        <div class="role-grid">
+
+          <article class="role">
+            <span class="count">2–3 stk</span>
+            <h3>Arrangement mellomleder</h3>
+            <p>Jubileet har flere arrangementer som skal planlegges og gjennomføres, og ansvaret
+              for disse fordeles mellom arrangementsmellomlederne.</p>
+            <p>Rollen innebærer planlegging, koordinering og gjennomføring av arrangementene i
+              tett samarbeid med resten av jubileumsstyret.</p>
+            <p class="looking">Vi ser etter deg som:</p>
+            <ul class="role-wants">
+              <li>Liker å planlegge og gjennomføre arrangementer.</li>
+              <li>Er strukturert og tar initiativ.</li>
+              <li>Trives med samarbeid og ansvar.</li>
+            </ul>
+          </article>
+
+          <article class="role">
+            <h3>Marintekniske dager – ansvarlig</h3>
+            <p>Marintekniske Dager (MTD) skal gi studentene et unikt innblikk i hvordan
+              industrien knyttes opp mot studiene.</p>
+            <p>Som MTD-ansvarlig har du hovedansvaret for å planlegge, koordinere og gjennomføre
+              arrangementet i samarbeid med relevante aktører.</p>
+            <p class="looking">Vi ser etter deg som:</p>
+            <ul class="role-wants">
+              <li>Er interessert i å bygge bro mellom studenter og maritim industri.</li>
+              <li>Er strukturert og komfortabel med å koordinere flere aktører.</li>
+              <li>Har lyst til å skape et faglig og sosialt høydepunkt under jubileet.</li>
+            </ul>
+          </article>
+
+        </div>
+      </section>
+
+      <section class="cat cat--kultur" id="cat-kultur" aria-labelledby="cat-kultur-h">
+        <h2 class="cat-title" id="cat-kultur-h">Kultur</h2>
+        <div class="role-grid">
+
+          <article class="role">
+            <h3>Teknisk ansvarlig</h3>
+            <p>Som teknisk ansvarlig har du ansvar for alt teknisk utstyr og rigging, samt den
+              tekniske gjennomføringen før og under konsertene.</p>
+            <p>Du sørger for at alt fungerer som det skal når konsertene går av stabelen.</p>
+            <p class="looking">Vi ser etter deg som:</p>
+            <ul class="role-wants">
+              <li>Er teknisk anlagt og praktisk.</li>
+              <li>Liker problemløsning og å ha kontroll på detaljene.</li>
+              <li>Har lyst til å bidra bak kulissene til gode konsertopplevelser.</li>
+            </ul>
+          </article>
+
+          <article class="role">
+            <h3>Konsertansvarlig</h3>
+            <p>Som konsertansvarlig har du hovedansvaret for artistene, oppfølging og
+              tilrettelegging i forkant, og praktisk vertskap på selve konsertdagen.</p>
+            <p>Du blir bindeleddet mellom artistene og jubileumskomiteen, og sørger for at alt
+              går knirkefritt.</p>
+            <p class="looking">Vi ser etter deg som:</p>
+            <ul class="role-wants">
+              <li>Er sosial, strukturert og god på kommunikasjon.</li>
+              <li>Trives med ansvar og koordinering.</li>
+              <li>Vil være med på å skape skikkelig gode konsertopplevelser.</li>
+            </ul>
+          </article>
+
+        </div>
+      </section>
+
+      <div class="closing">
+        <p>Ingen av rollene krever erfaring fra før. Det viktigste er motivasjon,
+          engasjement og vilje til å lære.</p>
+        <p>Mannhullets jubileum feires kun hvert femte år, og dette er en unik mulighet til
+          å sette ditt eget preg på en milepæl i Mannhullets historie. Enten du vil bygge
+          festivalområde, arrangere konserter, lage drinker, jobbe med teknikk eller skape
+          arrangementer, vi vil ha deg med!</p>
+        <p class="deadline">Søknadsfrist onsdag 9. september kl. 23:59</p>
+        <p class="apply">Send søknad til <a class="apply-mail"
+             href="mailto:jubkom-leder@mannhullet.no?subject=S%C3%B8knad%20mellomleder%20%E2%80%94%20Mannhullet%20110%20%C3%A5r">jubkom-leder@mannhullet.no</a></p>
+      </div>
+    </div>
+
+    <div class="date-footer">
+      <hr />
+      <p class="save-date">Hold av datoen</p>
+      <p class="dates">29. januar – 6. februar · 2027</p>
+    </div>
+
+  </main>
+
+  <script src="nav.js?v=1"></script>
+  <script src="rail.js?v=1"></script>
+</body>
+</html>
